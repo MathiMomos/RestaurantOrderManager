@@ -1,10 +1,7 @@
 from controllers.login_controller import autenticar_usuario
 
-def main():
-    nombre = input("Nombre de usuario: ")
-    contraseña = input("Contraseña: ")
-
-    usuario = autenticar_usuario(nombre, contraseña)
+def main(nombre, contrasena):
+    usuario = autenticar_usuario(nombre, contrasena)
 
     if usuario:
         print(f"Bienvenido, {usuario.nombre}. Eres un {usuario.tipo}.")

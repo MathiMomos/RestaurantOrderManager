@@ -1,4 +1,4 @@
-from controllers.admin_controller import crear_cuenta, establecer_mesas
+from controllers.admin_controller import crear_cuenta, establecer_mesas, obtener_cuentas_mesas
 
 def menu_admin():
     while True:
@@ -26,7 +26,10 @@ def menu_admin():
         elif opcion == '4':
             numero_mesas = int(input("Número de mesas: "))
             establecer_mesas(numero_mesas)
-            print(f"{numero_mesas} mesas establecidas.")
+            cuentas = obtener_cuentas_mesas(numero_mesas)
+            print(f"\nSe crearon {numero_mesas} cuentas de mesa:")
+            for cuenta in cuentas:
+                print(f"Usuario: {cuenta[0]}, Contraseña: {cuenta[1]}")
         elif opcion == '5':
             break
         else:

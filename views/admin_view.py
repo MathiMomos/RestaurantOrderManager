@@ -1,36 +1,39 @@
-from controllers.admin_controller import crear_cuenta, establecer_mesas, obtener_cuentas_mesas
+import tkinter as tk
+from tkinter import messagebox
 
-def menu_admin():
-    while True:
-        print("\nMenú Administrador")
-        print("1. Crear cuenta Caja")
-        print("2. Crear cuenta Chef")
-        print("3. Crear cuenta Panel")
-        print("4. Establecer número de mesas")
-        print("5. Salir")
+class AdminView:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Panel del Administrador")
+        self.root.geometry("1000x500")  # Tamaño de la ventana: Ancho 1000, Alto 500
+        self.root.configure(bg="white")  # Fondo blanco
 
-        opcion = input("Selecciona una opción: ")
+        # Título ADMINISTRADOR centrado y grande
+        title = tk.Label(self.root, text="ADMINISTRADOR", fg="black", bg="white", font=("Arial", 60, "bold"))  # Tamaño grande
+        title.pack(pady=(40, 10))  # Espacio superior e inferior
 
-        if opcion == '1':
-            nombre = input("Nombre de la cuenta Caja: ")
-            contraseña = input("Contraseña de la cuenta Caja: ")
-            crear_cuenta(nombre, contraseña, 'caja')
-        elif opcion == '2':
-            nombre = input("Nombre de la cuenta Chef: ")
-            contraseña = input("Contraseña de la cuenta Chef: ")
-            crear_cuenta(nombre, contraseña, 'chef')
-        elif opcion == '3':
-            nombre = input("Nombre de la cuenta Panel: ")
-            contraseña = input("Contraseña de la cuenta Panel: ")
-            crear_cuenta(nombre, contraseña, 'cliente')
-        elif opcion == '4':
-            numero_mesas = int(input("Número de mesas: "))
-            establecer_mesas(numero_mesas)
-            cuentas = obtener_cuentas_mesas(numero_mesas)
-            print(f"\nSe crearon {numero_mesas} cuentas de mesa:")
-            for cuenta in cuentas:
-                print(f"Usuario: {cuenta[0]}, Contraseña: {cuenta[1]}")
-        elif opcion == '5':
-            break
-        else:
-            print("Opción no válida, intenta de nuevo.")
+        # Botones para crear cuentas y gestionar mesas
+        button_style = {
+            'bg': 'white',
+            'fg': 'black',
+            'font': ('Arial', 14),
+            'width': 30  # Aumento de ancho en un 50%
+        }
+
+        tk.Button(self.root, text="CREAR CUENTA PARA CHEF", command=self.create_chef_account, **button_style).pack(pady=10)
+        tk.Button(self.root, text="CREAR CUENTA PARA CAJA", command=self.create_caja_account, **button_style).pack(pady=10)
+        tk.Button(self.root, text="ESTABLECER NÚMERO DE MESAS", command=self.set_num_mesas, **button_style).pack(pady=10)
+        tk.Button(self.root, text="CREAR CUENTA PARA PANEL", command=self.create_panel_account, **button_style).pack(pady=10)
+        tk.Button(self.root, text="SALIR", command=self.root.quit, **button_style).pack(pady=10)
+
+    def create_chef_account(self):
+        messagebox.showinfo("Info", "Función para crear cuenta de Chef")
+
+    def create_caja_account(self):
+        messagebox.showinfo("Info", "Función para crear cuenta de Caja")
+
+    def set_num_mesas(self):
+        messagebox.showinfo("Info", "Función para establecer número de mesas")
+
+    def create_panel_account(self):
+        messagebox.showinfo("Info", "Función para crear cuenta de Panel")

@@ -1,48 +1,44 @@
 import sqlite3
 
-def conectar():
-    return sqlite3.connect("data/restaurant.db")
+class Database:
+    def __init__(self):
+        # Conexión a la base de datos (se creará si no existe)
+        self.conn = sqlite3.connect('ruta_comensal.db')
+        self.cursor = self.conn.cursor()
+        self.create_tables()
 
-def crear_tablas():
-    conn = conectar()
-    cursor = conn.cursor()
+    def create_tables(self):
+        # Cargar el archivo schema.sql para crear las tablas
+        with open('data/schema.sql', 'r') as schema_file:
+            schema = schema_file.read()
+            self.cursor.executescript(schema)
+        self.conn.commit()
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS usuarios (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nombre TEXT NOT NULL,
-            contraseña TEXT NOT NULL,
-            tipo TEXT NOT NULL  -- admin, cliente, chef, caja
-        )
-    ''')
+    def add_user(self, username, password, role):
+        try:
+            self.cursor.execute("INSERT INTO usuarios (username, password, role) VALUES (?, ?, ?)",
+                                (username, password, role))
+            self.conn.commit()
+            print(f"Usuario '{username}' creado exitosamente.")
+        except sqlite3.IntegrityError:
+            print(f"Error: El nombre de usuario '{username}' ya existe.")
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS mesas (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            numero INTEGER NOT NULL,
-            estado TEXT NOT NULL DEFAULT 'disponible'
-        )
-    ''')
+    def get_user(self, username):
+        self.cursor.execute("SELECT * FROM usuarios WHERE username = ?", (username,))
+        return self.cursor.fetchone()
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS pedidos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            mesa_id INTEGER,
-            usuario_id INTEGER,
-            estado TEXT NOT NULL DEFAULT 'pendiente',
-            FOREIGN KEY (mesa_id) REFERENCES mesas(id),
-            FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
-        )
-    ''')
+    def add_mesa(self, mesa_number, username, password):
+        try:
+            self.cursor.execute("INSERT INTO mesas (mesa_number, username, password) VALUES (?, ?, ?)",
+                                (mesa_number, username, password))
+            self.conn.commit()
+            print(f"Mesa {mesa_number} creada exitosamente.")
+        except sqlite3.IntegrityError:
+            print(f"Error: El nombre de usuario '{username}' ya existe.")
 
-    # Agregar usuario por defecto si no existe
-    cursor.execute("SELECT COUNT(*) FROM usuarios")
-    if cursor.fetchone()[0] == 0:
-        cursor.execute("INSERT INTO usuarios (nombre, contraseña, tipo) VALUES (?, ?, ?)", ('admin', 'admin', 'admin'))
+    def get_mesas(self):
+        self.cursor.execute("SELECT * FROM mesas")
+        return self.cursor.fetchall()
 
-    conn.commit()
-    conn.close()
-
-if __name__ == "__main__":
-    crear_tablas()
-    print("Base de datos y tablas creadas exitosamente.")
+    def close(self):
+        self.conn.close()

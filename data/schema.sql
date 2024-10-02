@@ -8,9 +8,10 @@ CREATE TABLE IF NOT EXISTS usuarios (
 
 -- Creación de la tabla de mesas
 CREATE TABLE IF NOT EXISTS mesas (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER xPRIMARY KEY AUTOINCREMENT,
     mesa_number INTEGER NOT NULL UNIQUE,
     username TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
     FOREIGN KEY (username) REFERENCES usuarios(username)
 );
+

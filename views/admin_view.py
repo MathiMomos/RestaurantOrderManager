@@ -6,7 +6,7 @@ class AdminView:
         self.root = root
         self.root.title("Panel del Administrador")
         self.root.geometry("1000x500")  # Tamaño de la ventana: Ancho 1000, Alto 500
-        self.root.configure(bg="white")  # Fondo blanco
+        self.root.configure(bg="White")  # Fondo blanco
 
         # Título ADMINISTRADOR centrado y grande
         title = tk.Label(self.root, text="ADMINISTRADOR", fg="black", bg="white", font=("Arial", 60, "bold"))  # Tamaño grande
@@ -37,3 +37,4 @@ class AdminView:
 
     def create_panel_account(self):
         messagebox.showinfo("Info", "Función para crear cuenta de Panel")
+

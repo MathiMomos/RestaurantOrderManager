@@ -29,7 +29,11 @@ class LoginView:
 
         # Botón de login
         login_button = tk.Button(self.root, text="Login", command=self.login, bg="white", fg="black", font=("Arial", 14), width=20)
-        login_button.pack(pady=30)
+        login_button.pack(pady=20)
+
+        # Botón de salir con confirmación
+        exit_button = tk.Button(self.root, text="Salir", command=self.confirm_exit, bg="white", fg="black", font=("Arial", 14), width=20)
+        exit_button.pack(pady=10)
 
         # Callback para el login
         self.on_login = on_login
@@ -49,6 +53,12 @@ class LoginView:
             messagebox.showinfo("Éxito", "Inicio de sesión exitoso")
         else:
             messagebox.showerror("Error", "Usuario o contraseña incorrectos")
+
+    def confirm_exit(self):
+        """Función para mostrar un mensaje de confirmación antes de salir"""
+        answer = messagebox.askyesno("Confirmación", "¿Estás seguro de que deseas salir?")
+        if answer:
+            self.root.quit()  # Cerrar la aplicación si el usuario confirma
 
     def run(self):
         self.root.mainloop()

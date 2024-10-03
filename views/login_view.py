@@ -22,12 +22,24 @@ class LoginView:
         self.password_entry = tk.Entry(self.root, show="*", bg="white", fg="black", font=("Arial", 14), width=30, highlightbackground="black", highlightcolor="black")
         self.password_entry.pack(ipady=5)
 
+        # Checkbutton para mostrar/ocultar contraseña
+        self.show_password_var = tk.IntVar()  # Variable que controlará el estado del Checkbutton
+        self.show_password_checkbutton = tk.Checkbutton(self.root, text="Mostrar contraseña", bg="white", fg="black", font=("Arial", 12), variable=self.show_password_var, command=self.toggle_password)
+        self.show_password_checkbutton.pack(pady=10)
+
         # Botón de login
         login_button = tk.Button(self.root, text="Login", command=self.login, bg="white", fg="black", font=("Arial", 14), width=20)
         login_button.pack(pady=30)
 
         # Callback para el login
         self.on_login = on_login
+
+    def toggle_password(self):
+        """Función para mostrar u ocultar la contraseña según el estado del Checkbutton"""
+        if self.show_password_var.get():
+            self.password_entry.config(show="")  # Muestra la contraseña como texto normal
+        else:
+            self.password_entry.config(show="*")  # Oculta la contraseña con asteriscos
 
     def login(self):
         username = self.username_entry.get()

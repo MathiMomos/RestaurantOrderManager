@@ -5,7 +5,7 @@ class LoginView:
     def __init__(self, root, on_login):
         self.root = root
         self.root.title("Login")
-        self.root.geometry("1000x500")  # Tamaño de la ventana: Ancho 1000, Alto 500
+        self.root.geometry("1200x600")  # Tamaño de la ventana: Ancho 1000, Alto 500
         self.root.configure(bg="white")  # Fondo blanco
 
         # Título LOGIN centrado y más grande

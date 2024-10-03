@@ -36,6 +36,20 @@ class Database:
         except sqlite3.IntegrityError:
             print(f"Error: El nombre de usuario '{username}' ya existe.")
 
+    def add_cliente(self, nombre, dni):
+        try:
+            self.cursor.execute("INSERT INTO clientes (nombre, dni) VALUES (?, ?)", (nombre, dni))
+            self.conn.commit()
+            print(f"Cliente '{nombre}' con DNI '{dni}' agregado exitosamente.")
+        except sqlite3.IntegrityError:
+            print(f"Error: El cliente con DNI '{dni}' ya existe.")
+
+    def get_cliente_por_dni(self, dni):
+        """Verifica si un cliente con el DNI dado ya existe en la base de datos."""
+        self.cursor.execute("SELECT * FROM clientes WHERE dni = ?", (dni,))
+        return self.cursor.fetchone()
+
+
     def get_mesas(self):
         self.cursor.execute("SELECT * FROM mesas")
         return self.cursor.fetchall()

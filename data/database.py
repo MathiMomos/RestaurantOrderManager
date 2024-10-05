@@ -14,6 +14,7 @@ class Database:
             self.cursor.executescript(schema)
         self.conn.commit()
 
+#usuarios del sistema ( admi , chef , caja )
     def add_user(self, username, password, role):
         try:
             self.cursor.execute("INSERT INTO usuarios (username, password, role) VALUES (?, ?, ?)",
@@ -27,6 +28,7 @@ class Database:
         self.cursor.execute("SELECT * FROM usuarios WHERE username = ?", (username,))
         return self.cursor.fetchone()
 
+# las 15 mesas del local
     def add_mesa(self, mesa_number, username, password):
         try:
             self.cursor.execute("INSERT INTO mesas (mesa_number, username, password) VALUES (?, ?, ?)",
@@ -36,19 +38,24 @@ class Database:
         except sqlite3.IntegrityError:
             print(f"Error: El nombre de usuario '{username}' ya existe.")
 
-    def add_cliente(self, nombre, dni):
+#el cliente con su nombre ,documento de identidad y visitas al local
+    def add_cliente(self, nombre, documento , visitas):
         try:
-            self.cursor.execute("INSERT INTO clientes (nombre, dni) VALUES (?, ?)", (nombre, dni))
+            self.cursor.execute("INSERT INTO clientes (nombre, documento , visitas) VALUES (?, ? , ?)", (nombre, documento , visitas))
             self.conn.commit()
-            print(f"Cliente '{nombre}' con DNI '{dni}' agregado exitosamente.")
+            print(f"Cliente '{nombre}' con DNI '{documento}' agregado exitosamente.")
         except sqlite3.IntegrityError:
-            print(f"Error: El cliente con DNI '{dni}' ya existe.")
+            print(f"Error: El cliente con DNI '{documento}' ya existe.")
 
-    def get_cliente_por_dni(self, dni):
-        """Verifica si un cliente con el DNI dado ya existe en la base de datos."""
-        self.cursor.execute("SELECT * FROM clientes WHERE dni = ?", (dni,))
+    def get_cliente_por_dni(self, documento):
+        self.cursor.execute("SELECT * FROM clientes WHERE documento = ?", (documento,))
         return self.cursor.fetchone()
 
+    def update_visitas_cliente(self, documento, nuevas_visitas):
+        self.cursor.execute("UPDATE clientes SET visitas = ? WHERE documento = ?", (nuevas_visitas, documento))
+        self.conn.commit()
+
+#mesas
 
     def get_mesas(self):
         self.cursor.execute("SELECT * FROM mesas")

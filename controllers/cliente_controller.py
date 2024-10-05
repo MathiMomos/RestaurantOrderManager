@@ -6,19 +6,22 @@ class ClienteController:
 
     def ingresoNombreCliente(self):
         print("\n--------------------------")
-        nom = input("Ingrese su nombre: ")
+        nombre = input("Ingrese su nombre: ")
         dni = input("Ingrese su DNI: ")
 
         # Verificar si el cliente ya existe en la base de datos
         cliente_existente = self.database.get_cliente_por_dni(dni)
 
         if cliente_existente:
-            print(f"Bienvenido de nuevo, {cliente_existente['nombre']}.")
+            # Si el cliente ya existe, incrementar el número de visitas
+            visitas_actuales = cliente_existente['visitas']
+            nuevas_visitas = visitas_actuales + 1
+            self.database.update_visitas_cliente(dni, nuevas_visitas)
+            print( f"Bienvenido de nuevo, {cliente_existente['nombre']}. Número de visitas actualizado a {nuevas_visitas}.")
         else:
-            # Agregar cliente a la base de datos si no existe
-            self.database.add_cliente(nom, dni)
-            print(f"Cliente '{nom}' con DNI '{dni}' ha sido registrado exitosamente.")
-
+            # Si el cliente no existe, agregarlo con una visita inicial
+            self.database.add_cliente(nombre, dni, 1)
+            print(f"Cliente '{nombre}' con DNI '{dni}' ha sido registrado exitosamente con 1 visita.")
 
         self.cliente_menu()
 
@@ -44,3 +47,5 @@ class ClienteController:
     def add_menu(self):
         print("Mostrando el menú y combos...")
         # Aquí iría la lógica para mostrar el menú al cliente
+
+

@@ -15,16 +15,21 @@ CREATE TABLE IF NOT EXISTS mesas (
     FOREIGN KEY (username) REFERENCES usuarios(username)
 );
 
+--clientes guarda nombre , dni y num visitas
 CREATE TABLE IF NOT EXISTS clientes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nombre TEXT NOT NULL,
-    dni TEXT NOT NULL UNIQUE
+    dni TEXT NOT NULL UNIQUE,
+    visitas INTEGER NOT NULL default 0
 );
 
-CREATE TABLE IF NOT EXISTS menu (
+-- Los item de los pedidos
+CREATE TABLE IF NOT EXISTS item (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nombre TEXT NOT NULL,
-    precio REAL NOT NULL
+    precio REAL NOT NULL,
+    cantidad INTEGER NOT NULL UNIQUE,
+    categoria TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS pedidos (

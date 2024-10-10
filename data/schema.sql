@@ -1,42 +1,30 @@
--- Creación de la tabla de usuarios
-CREATE TABLE IF NOT EXISTS usuarios (
+-- Crear tabla de usuarios
+CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL UNIQUE,
+    username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    role TEXT NOT NULL -- Puede ser 'admin', 'chef', 'caja', 'mesa'
+    role TEXT NOT NULL
 );
 
--- Creación de la tabla de mesas
+-- Tabla para guardar configuraciones del sistema, como el número de mesas
+CREATE TABLE IF NOT EXISTS settings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    setting_key TEXT UNIQUE NOT NULL,
+    setting_value TEXT NOT NULL
+);
+
+-- Tabla para almacenar órdenes
+CREATE TABLE IF NOT EXISTS orders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    mesa_number INTEGER NOT NULL,
+    order_items TEXT NOT NULL,    -- Lista de ítems en el pedido
+    total_price REAL NOT NULL,    -- Precio total del pedido
+    status TEXT NOT NULL DEFAULT 'pending'  -- Estados: pending, sent, completed
+);
+
+-- Tabla para el estado de las mesas
 CREATE TABLE IF NOT EXISTS mesas (
-    id INTEGER xPRIMARY KEY AUTOINCREMENT,
-    mesa_number INTEGER NOT NULL UNIQUE,
-    username TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL,
-    FOREIGN KEY (username) REFERENCES usuarios(username)
-);
-
---clientes guarda nombre , dni y num visitas
-CREATE TABLE IF NOT EXISTS clientes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre TEXT NOT NULL,
-    dni TEXT NOT NULL UNIQUE,
-    visitas INTEGER NOT NULL default 0
-);
-
--- Los item de los pedidos
-CREATE TABLE IF NOT EXISTS item (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre TEXT NOT NULL,
-    precio REAL NOT NULL,
-    cantidad INTEGER NOT NULL UNIQUE,
-    categoria TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS pedidos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    cliente_id INTEGER,
-    producto TEXT NOT NULL,
-    cantidad INTEGER NOT NULL,
-    precio REAL NOT NULL,
-    FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+    mesa_number INTEGER UNIQUE NOT NULL,
+    status TEXT NOT NULL DEFAULT 'free'  -- Estados: free (mesa libre), occupied (mesa ocupada)
 );

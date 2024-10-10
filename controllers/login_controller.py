@@ -1,29 +1,19 @@
-from controllers.admin_controller import AdminController
 from data.database import Database
 
 class LoginController:
     def __init__(self):
-        # Crear conexión con la base de datos
         self.db = Database()
-        # Verificar si la cuenta admin existe, si no, crearla
-        if not self.db.get_user('admin'):
-            self.db.add_user('admin', 'admin', 'admin')
 
-    def login(self):
-        print("=== Iniciar Sesión ===")
-        username = input("Usuario: ")
-        password = input("Contraseña: ")
+    def login(self, username, password):
+        user = self.db.get_user(username, password)
+        # Imprimir información del usuario para debugging
+        print(f"Intento de inicio de sesión: {username}, contraseña: {password}")
 
-        user = self.db.get_user(username)
-        if user and user[2] == password:
-            print(f"Bienvenido, {username}")
-            # Redirigir al menú del administrador si el login es correcto
-            if user[3] == 'admin':
-                admin_controller = AdminController()
-                admin_controller.show_admin_menu()
-            elif user[3] == 'panel':
-                print("Acceso al panel externo.")
-                # Aquí se podría redirigir a una interfaz especial de panel si es necesario
+        if user:
+            # Asegúrate de que los índices son correctos
+            return {"username": user[1], "role": user[3]}  # user[1] es el nombre de usuario, user[3] es el rol
         else:
-            print("Usuario o contraseña incorrectos. Inténtalo de nuevo.")
-            self.login()
+            return {"error": "Usuario o contraseña incorrectos"}
+
+    def close(self):
+        self.db.close()

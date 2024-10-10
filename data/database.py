@@ -2,64 +2,146 @@ import sqlite3
 
 class Database:
     def __init__(self):
-        # Conexión a la base de datos (se creará si no existe)
-        self.conn = sqlite3.connect('ruta_comensal.db')
+        self.conn = sqlite3.connect('data/restaurant.db')
         self.cursor = self.conn.cursor()
         self.create_tables()
+        self.create_default_admin()
 
     def create_tables(self):
-        # Cargar el archivo schema.sql para crear las tablas
-        with open('data/schema.sql', 'r') as schema_file:
-            schema = schema_file.read()
-            self.cursor.executescript(schema)
+        # Crear tabla de usuarios
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL,
+                role TEXT NOT NULL
+            )
+        ''')
+
+        # Crear tabla de settings
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS settings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                setting_key TEXT UNIQUE NOT NULL,
+                setting_value TEXT NOT NULL
+            )
+        ''')
+
+        # Crear tabla de órdenes
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS orders (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                mesa_number INTEGER NOT NULL,
+                order_items TEXT NOT NULL,
+                total_price REAL NOT NULL,
+                status TEXT NOT NULL DEFAULT 'pending'
+            )
+        ''')
+
+        # Crear tabla de mesas
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS mesas (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                mesa_number INTEGER UNIQUE NOT NULL,
+                status TEXT NOT NULL DEFAULT 'free'
+            )
+        ''')
+
         self.conn.commit()
 
-#usuarios del sistema ( admi , chef , caja )
-    def add_user(self, username, password, role):
-        try:
-            self.cursor.execute("INSERT INTO usuarios (username, password, role) VALUES (?, ?, ?)",
-                                (username, password, role))
+    def create_default_admin(self):
+        # Crear un usuario admin si no existe
+        self.cursor.execute("SELECT * FROM users WHERE username = 'admin'")
+        if not self.cursor.fetchone():
+            self.cursor.execute(
+                "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+                ('admin', 'admin', 'admin')
+            )
             self.conn.commit()
-            print(f"Usuario '{username}' creado exitosamente.")
-        except sqlite3.IntegrityError:
-            print(f"Error: El nombre de usuario '{username}' ya existe.")
 
-    def get_user(self, username):
-        self.cursor.execute("SELECT * FROM usuarios WHERE username = ?", (username,))
-        return self.cursor.fetchone()
-
-# las 15 mesas del local
-    def add_mesa(self, mesa_number, username, password):
+    def create_user(self, username, password, role):
         try:
-            self.cursor.execute("INSERT INTO mesas (mesa_number, username, password) VALUES (?, ?, ?)",
-                                (mesa_number, username, password))
+            self.cursor.execute(
+                "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+                (username, password, role)
+            )
             self.conn.commit()
-            print(f"Mesa {mesa_number} creada exitosamente.")
+            return True
         except sqlite3.IntegrityError:
-            print(f"Error: El nombre de usuario '{username}' ya existe.")
+            return False  # Si el usuario ya existe
+        except Exception as e:
+            print(f"Error al crear usuario: {str(e)}")
+            return False
 
-#el cliente con su nombre ,documento de identidad y visitas al local
-    def add_cliente(self, nombre, documento , visitas):
+    def get_user(self, username, password):
         try:
-            self.cursor.execute("INSERT INTO clientes (nombre, documento , visitas) VALUES (?, ? , ?)", (nombre, documento , visitas))
+            self.cursor.execute(
+                "SELECT * FROM users WHERE username = ? AND password = ?",
+                (username, password)
+            )
+            return self.cursor.fetchone()
+        except Exception as e:
+            print(f"Error al obtener usuario: {str(e)}")
+            return None
+
+    def get_user_count(self, role):
+        try:
+            self.cursor.execute("SELECT COUNT(*) FROM users WHERE role = ?", (role,))
+            return self.cursor.fetchone()[0]
+        except Exception as e:
+            print(f"Error al contar usuarios: {str(e)}")
+            return 0
+
+    def get_mesas_status(self):
+        try:
+            self.cursor.execute("SELECT mesa_number, status FROM mesas")
+            return self.cursor.fetchall()
+        except Exception as e:
+            print(f"Error al obtener estado de las mesas: {str(e)}")
+            return []
+
+    def update_mesa_status(self, mesa_number, new_status):
+        try:
+            self.cursor.execute(
+                "UPDATE mesas SET status = ? WHERE mesa_number = ?",
+                (new_status, mesa_number)
+            )
             self.conn.commit()
-            print(f"Cliente '{nombre}' con DNI '{documento}' agregado exitosamente.")
-        except sqlite3.IntegrityError:
-            print(f"Error: El cliente con DNI '{documento}' ya existe.")
+        except Exception as e:
+            print(f"Error al actualizar estado de la mesa: {str(e)}")
 
-    def get_cliente_por_dni(self, documento):
-        self.cursor.execute("SELECT * FROM clientes WHERE documento = ?", (documento,))
-        return self.cursor.fetchone()
+    # Métodos para manejar órdenes
+    def create_order(self, mesa_number, order_items, total_price):
+        try:
+            self.cursor.execute(
+                "INSERT INTO orders (mesa_number, order_items, total_price, status) VALUES (?, ?, ?, ?)",
+                (mesa_number, order_items, total_price, 'pending')
+            )
+            self.conn.commit()
+        except Exception as e:
+            print(f"Error al crear orden: {str(e)}")
 
-    def update_visitas_cliente(self, documento, nuevas_visitas):
-        self.cursor.execute("UPDATE clientes SET visitas = ? WHERE documento = ?", (nuevas_visitas, documento))
-        self.conn.commit()
-
-#mesas
-
-    def get_mesas(self):
-        self.cursor.execute("SELECT * FROM mesas")
+    def get_orders_by_mesa(self, mesa_number):
+        self.cursor.execute("SELECT * FROM orders WHERE mesa_number = ? AND status = 'pending'", (mesa_number,))
         return self.cursor.fetchall()
+
+    def get_all_orders(self):
+        """Obtiene todos los pedidos pendientes."""
+        self.cursor.execute("SELECT * FROM orders WHERE status = 'pending'")
+        return self.cursor.fetchall()
+
+    def confirm_order(self, order_id):
+        self.cursor.execute("UPDATE orders SET status = 'completed' WHERE id = ?", (order_id,))
+        self.conn.commit()
+
+    def delete_order(self, order_id):
+        self.cursor.execute("DELETE FROM orders WHERE id = ?", (order_id,))
+        self.conn.commit()
+
+    def get_order_details(self, order_id):
+        """Obtiene los detalles de un pedido específico."""
+        self.cursor.execute("SELECT order_items FROM orders WHERE id = ?", (order_id,))
+        return self.cursor.fetchone()
 
     def close(self):
         self.conn.close()

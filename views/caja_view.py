@@ -1,4 +1,4 @@
-# views/caja_view.py
+# views/caja_view.py .
 import tkinter as tk
 from tkinter import messagebox, ttk
 from controllers.caja_controller import CajaController

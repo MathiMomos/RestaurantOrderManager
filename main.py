@@ -1,4 +1,4 @@
-# main.py
+# main.py .
 import tkinter as tk
 from views.login_view import LoginView
 from data.database import initialize_database

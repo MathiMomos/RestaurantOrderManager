@@ -1,4 +1,4 @@
-# views/panel_view.py
+# views/panel_view.py .
 
 import tkinter as tk
 from tkinter import messagebox, ttk

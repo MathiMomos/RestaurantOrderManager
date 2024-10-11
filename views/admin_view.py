@@ -1,4 +1,4 @@
-# views/admin_view.py
+# views/admin_view.py .
 import tkinter as tk
 from tkinter import messagebox, ttk
 from controllers.admin_controller import AdminController

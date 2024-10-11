@@ -1,4 +1,4 @@
-# views/cliente_view.py
+# views/cliente_view.py .
 import tkinter as tk
 from tkinter import messagebox, ttk
 from controllers.cliente_controller import ClienteController

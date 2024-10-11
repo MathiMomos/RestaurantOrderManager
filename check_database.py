@@ -1,4 +1,4 @@
-# check_database.py
+# check_database.py INNECESARIO SI QUIEREN BORREN ESTE ARCHIVO YA QUE LO USE UN TOKERPARA CONFIRMAR EL DATABASE UWU
 
 import sqlite3
 

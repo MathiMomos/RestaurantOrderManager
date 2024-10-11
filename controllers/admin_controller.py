@@ -1,4 +1,4 @@
-# controllers/admin_controller.py
+# controllers/admin_controller.py .
 import hashlib
 from data.database import create_connection
 

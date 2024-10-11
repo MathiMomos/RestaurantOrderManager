@@ -1,4 +1,4 @@
--- data/schema.sql
+-- data/schema.sql .
 
 -- Tabla de usuarios
 CREATE TABLE IF NOT EXISTS users (

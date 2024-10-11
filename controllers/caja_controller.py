@@ -1,4 +1,4 @@
-# controllers/caja_controller.py
+# controllers/caja_controller.py .
 from data.database import create_connection
 
 class CajaController:

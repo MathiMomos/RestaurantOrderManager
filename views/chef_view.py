@@ -8,17 +8,22 @@ class ChefView:
         self.root = root
         self.root.title("Chef - Pedidos Confirmados")
         self.controller = ChefController()
+        self.user_id = user_id
 
+        # Configuración de la interfaz
         self.label = tk.Label(root, text="Pedidos Confirmados para Preparar")
         self.label.pack(pady=10)
 
-        self.tree = ttk.Treeview(root, columns=("ID", "Cliente", "Platos", "Total"), show='headings')
+        # Treeview para mostrar los pedidos confirmados
+        self.tree = ttk.Treeview(root, columns=("ID", "Cliente/Panel", "Platos", "Total", "Tipo Cuenta"), show='headings')
         self.tree.heading("ID", text="ID")
-        self.tree.heading("Cliente", text="Cliente")
+        self.tree.heading("Cliente/Panel", text="Cliente/Panel")
         self.tree.heading("Platos", text="Platos")
         self.tree.heading("Total", text="Total")
+        self.tree.heading("Tipo Cuenta", text="Tipo Cuenta")
         self.tree.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
 
+        # Botón para confirmar el pedido seleccionado
         self.button_confirm = tk.Button(root, text="Confirmar Pedido", command=self.confirm_selected_order)
         self.button_confirm.pack(pady=10)
 
@@ -36,12 +41,16 @@ class ChefView:
         if selected:
             order = self.tree.item(selected, 'values')
             order_id = order[0]
-            cliente = order[1]
-            confirm = messagebox.askyesno("Confirmar Pedido", f"¿Deseas confirmar el pedido ID {order_id} de {cliente}?")
+            cliente_panel = order[1]
+            tipo_cuenta = order[4]
+            confirm = messagebox.askyesno("Confirmar Pedido", f"¿Deseas confirmar el pedido ID {order_id} de {cliente_panel}?")
             if confirm:
                 success = self.controller.confirm_order(order_id)
-                if success:
+                if success == True:
                     messagebox.showinfo("Éxito", f"Pedido ID {order_id} confirmado y enviado a la caja.")
+                    self.load_orders()
+                elif success == 'panel_finalizado':
+                    messagebox.showinfo("Pedido Completado", f"Pedido ID {order_id} completado.")
                     self.load_orders()
                 else:
                     messagebox.showerror("Error", "No se pudo confirmar el pedido.")

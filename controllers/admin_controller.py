@@ -1,5 +1,5 @@
 from data.database import Database
-
+#a
 class AdminController:
     def __init__(self):
         self.db = Database()

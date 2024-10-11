@@ -1,5 +1,5 @@
 from data.database import Database
-
+#a
 class CajaController:
     def __init__(self):
         self.db = Database()

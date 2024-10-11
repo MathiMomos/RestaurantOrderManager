@@ -1,6 +1,6 @@
 import sqlite3
 import json
-
+#a
 class Database:
     def __init__(self):
         self.conn = sqlite3.connect('data/restaurant.db')
@@ -65,6 +65,7 @@ class Database:
             self.conn.commit()
             return True
         except sqlite3.IntegrityError:
+            print(f"El usuario '{username}' ya existe.")  # Mensaje de error para depuración
             return False
         except Exception as e:
             print(f"Error al crear usuario: {e}")  # Imprimir error para depuración
@@ -104,6 +105,7 @@ class Database:
                 (new_status, mesa_number)
             )
             self.conn.commit()
+            print(f"Estado de la mesa {mesa_number} actualizado a '{new_status}'.")  # Mensaje de depuración
         except Exception as e:
             print(f"Error al actualizar estado de mesa: {e}")  # Imprimir error para depuración
 
@@ -138,6 +140,7 @@ class Database:
         try:
             self.cursor.execute("UPDATE orders SET status = 'completed' WHERE id = ?", (order_id,))
             self.conn.commit()
+            print(f"Orden {order_id} confirmada.")  # Mensaje de depuración
         except Exception as e:
             print(f"Error al confirmar la orden: {e}")  # Imprimir error para depuración
 
@@ -145,6 +148,7 @@ class Database:
         try:
             self.cursor.execute("DELETE FROM orders WHERE id = ?", (order_id,))
             self.conn.commit()
+            print(f"Orden {order_id} eliminada.")  # Mensaje de depuración
         except Exception as e:
             print(f"Error al eliminar la orden: {e}")  # Imprimir error para depuración
 

@@ -144,3 +144,4 @@ class ClienteView:
     def clear_frame(self):
         for widget in self.menu_frame.winfo_children():
             widget.destroy()
+#a

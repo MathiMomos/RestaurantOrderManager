@@ -150,6 +150,7 @@ class PanelView:
             del self.cart[item]
         self.show_cart()
 
+    # a
     def confirm_order(self):
         messagebox.showinfo("Orden Confirmada", "Tu orden ha sido confirmada.")
         self.cart.clear()

@@ -1,104 +1,74 @@
+# views/admin_view.py
 import tkinter as tk
+from tkinter import messagebox, ttk
 from controllers.admin_controller import AdminController
 
 class AdminView:
-    def __init__(self, root):
+    def __init__(self, root, user_id):
         self.root = root
-        self.root.title("Administración")
-        self.root.geometry("1200x600")
+        self.root.title("Administrador - Restaurant Order Manager")
         self.controller = AdminController()
-        self.create_interface()
+        self.user_id = user_id
 
-    def create_interface(self):
-        # Cambiar fondo de la ventana
-        self.root.configure(bg="#DDD6CC")
+        self.frame_create = tk.Frame(root)
+        self.frame_create.pack(pady=10)
 
-        # Frame derecho
-        right_frame = tk.Frame(self.root, bg="#19222B", bd=5, relief="groove")
-        right_frame.place(relx=0.74, rely=0.5, anchor="center", width=450, height=500)
+        self.label_username = tk.Label(self.frame_create, text="Nuevo Usuario:")
+        self.label_username.grid(row=0, column=0, padx=10, pady=5)
 
-        # Frame izquierdo - aumentarlo considerablemente
-        left_frame = tk.Frame(self.root, bg="#DDD6CC")
-        left_frame.place(relx=0.25, rely=0.5, anchor="center", width=500, height=500)  # Ancho aumentado a 500
+        self.entry_username = tk.Entry(self.frame_create)
+        self.entry_username.grid(row=0, column=1, padx=10, pady=5)
 
-        # Frame para "Número de Mesas" y sus elementos (un único cuadro)
-        number_frame = tk.Frame(left_frame, bg="#DDD6CC", bd=2, relief="solid", highlightbackground="#19222B", highlightthickness=1)
-        number_frame.pack(pady=10, padx=10, ipadx=10)  # ipadx se puede ajustar si es necesario
+        self.label_password = tk.Label(self.frame_create, text="Contraseña:")
+        self.label_password.grid(row=1, column=0, padx=10, pady=5)
 
-        # Etiqueta de "Número de Mesas" con color actualizado
-        tk.Label(number_frame, text="NÚMERO DE MESAS", font=("Arial", 16), bg="#DDD6CC", fg="#19222B").pack(pady=(10, 5))
+        self.entry_password = tk.Entry(self.frame_create, show="*")
+        self.entry_password.grid(row=1, column=1, padx=10, pady=5)
 
-        # Contenedor para el número y botones
-        button_number_frame = tk.Frame(number_frame, bg="#DDD6CC")
-        button_number_frame.pack(pady=5)
+        self.label_role = tk.Label(self.frame_create, text="Rol:")
+        self.label_role.grid(row=2, column=0, padx=10, pady=5)
 
-        # Botón disminuir
-        self.decrease_button = tk.Button(button_number_frame, text="-", width=5, height=2, font=("Arial", 14), command=self.decrease_number,
-                                         bg="#19222B", fg="#BD9240", activebackground="#19222B", activeforeground="#BD9240")
-        self.decrease_button.grid(row=0, column=0)
+        self.role_var = tk.StringVar(root)
+        self.role_var.set("cliente")
+        self.option_role = tk.OptionMenu(self.frame_create, self.role_var, "cliente", "chef", "caja", "panel")
+        self.option_role.grid(row=2, column=1, padx=10, pady=5)
 
-        # Etiqueta para mostrar el número de mesas
-        self.number_label = tk.Label(button_number_frame, width=5, font=("Arial", 14), bg="#DDD6CC", fg="#19222B", justify='center')
-        self.number_label.grid(row=0, column=1)
-        self.number_label.config(text="0")  # Inicializar con 0
+        self.button_create = tk.Button(self.frame_create, text="Crear Usuario", command=self.create_user)
+        self.button_create.grid(row=3, column=0, columnspan=2, pady=10)
 
-        # Botón aumentar
-        self.increase_button = tk.Button(button_number_frame, text="+", width=5, height=2, font=("Arial", 14), command=self.increase_number,
-                                         bg="#19222B", fg="#BD9240", activebackground="#19222B", activeforeground="#BD9240")
-        self.increase_button.grid(row=0, column=2)
+        self.frame_list = tk.Frame(root)
+        self.frame_list.pack(pady=10)
 
-        # Botón Aceptar
-        accept_button = tk.Button(number_frame, text="ACEPTAR", width=35, height=2, font=("Arial", 14), command=self.create_mesas,
-                                  bg="#19222B", fg="#BD9240", activebackground="#19222B", activeforeground="#BD9240")
-        accept_button.pack(pady=10)
+        self.label_users = tk.Label(self.frame_list, text="Usuarios Existentes:")
+        self.label_users.pack(pady=5)
 
-        # Botón Crear Cuenta Chef
-        button1 = tk.Button(left_frame, text="CREAR CUENTA CHEF", width=35, height=2, font=("Arial", 14), command=lambda: self.create_user('chef'),
-                            bg="#19222B", fg="#BD9240", activebackground="#19222B", activeforeground="#BD9240")
-        button1.pack(pady=10)
+        self.tree_users = ttk.Treeview(self.frame_list, columns=("ID", "Usuario", "Rol"), show='headings')
+        self.tree_users.heading("ID", text="ID")
+        self.tree_users.heading("Usuario", text="Usuario")
+        self.tree_users.heading("Rol", text="Rol")
+        self.tree_users.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
 
-        # Botón Crear Cuenta Caja
-        button2 = tk.Button(left_frame, text="CREAR CUENTA CAJA", width=35, height=2, font=("Arial", 14), command=lambda: self.create_user('caja'),
-                            bg="#19222B", fg="#BD9240", activebackground="#19222B", activeforeground="#BD9240")
-        button2.pack(pady=10)
+        self.load_users()
 
-        # Botón Crear Cuenta Panel
-        button3 = tk.Button(left_frame, text="CREAR CUENTA PANEL", width=35, height=2, font=("Arial", 14), command=lambda: self.create_user('panel'),
-                            bg="#19222B", fg="#BD9240", activebackground="#19222B", activeforeground="#BD9240")
-        button3.pack(pady=10)
-
-        # Etiqueta para mostrar resultados
-        self.result_label = tk.Label(right_frame, text="", font=("Arial", 14), bg="#19222B", fg="#BD9240")
-        self.result_label.pack(pady=20)
-
-    def create_user(self, role):
-        result = self.controller.create_user(role)
-        if "error" in result:
-            self.result_label.config(text=result["error"])
+    def create_user(self):
+        username = self.entry_username.get()
+        password = self.entry_password.get()
+        role = self.role_var.get()
+        if username and password:
+            success = self.controller.create_user(username, password, role)
+            if success:
+                messagebox.showinfo("Éxito", "Usuario creado exitosamente.")
+                self.load_users()
+                self.entry_username.delete(0, tk.END)
+                self.entry_password.delete(0, tk.END)
+            else:
+                messagebox.showerror("Error", "No se pudo crear el usuario. Puede que el nombre de usuario ya exista.")
         else:
-            self.result_label.config(text=f"Usuario: {result['username']}, Contraseña: {result['password']}")
+            messagebox.showerror("Error", "Por favor, completa todos los campos.")
 
-    def create_mesas(self):
-        try:
-            num_mesas = int(self.number_label['text'])  # Obtener el número de la etiqueta
-            if num_mesas <= 0:
-                raise ValueError("El número de mesas debe ser mayor que cero.")
-            result = self.controller.create_mesas(num_mesas)
-            self.result_label.config(text=result)
-        except ValueError as e:
-            self.result_label.config(text=str(e))
-
-    def increase_number(self):
-        current_value = int(self.number_label['text'])  # Obtener el número actual de la etiqueta
-        self.number_label.config(text=str(current_value + 1))  # Actualizar el texto de la etiqueta
-
-    def decrease_number(self):
-        current_value = int(self.number_label['text'])  # Obtener el número actual de la etiqueta
-        if current_value > 0:
-            self.number_label.config(text=str(current_value - 1))  # Actualizar el texto de la etiqueta
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = AdminView(root)
-    root.mainloop()
-#a
+    def load_users(self):
+        for row in self.tree_users.get_children():
+            self.tree_users.delete(row)
+        users = self.controller.get_all_users()
+        for user in users:
+            self.tree_users.insert("", tk.END, values=user)

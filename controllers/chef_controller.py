@@ -1,20 +1,34 @@
-from data.database import Database
-#a
+# controllers/chef_controller.py
+from data.database import create_connection
+
 class ChefController:
     def __init__(self):
-        self.db = Database()
+        self.conn = create_connection('data/restaurant.db')
 
-    def get_pending_orders(self):
-        orders = self.db.get_all_pending_orders()
-        return orders
+    def get_confirmed_orders(self):
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            SELECT orders.id, users.username, orders.items, orders.total
+            FROM orders
+            JOIN users ON orders.user_id = users.id
+            WHERE orders.status = 'confirmado'
+        """)
+        return cursor.fetchall()
 
     def confirm_order(self, order_id):
-        self.db.confirm_order(order_id)
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute("""
+                UPDATE orders
+                SET status = 'en caja'
+                WHERE id = ?
+            """, (order_id,))
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"Error al confirmar el pedido: {e}")
+            return False
 
-    def receive_order(self, mesa_number, items, total_price):
-        """Recibir un pedido desde el ClienteController y almacenarlo en la base de datos."""
-        items_json = json.dumps(items)
-        self.db.create_order(mesa_number, items_json, total_price)  # Método para guardar en la base de datos
-
-    def close(self):
-        self.db.close()
+    def close_connection(self):
+        if self.conn:
+            self.conn.close()

@@ -1,36 +1,31 @@
-from data.database import Database
-#a
+# controllers/admin_controller.py
+import hashlib
+from data.database import create_connection
+
 class AdminController:
     def __init__(self):
-        self.db = Database()
+        self.conn = create_connection('data/restaurant.db')
 
-    def create_user(self, role):
+    def hash_password(self, password):
+        return hashlib.sha256(password.encode()).hexdigest()
+
+    def create_user(self, username, password, role):
+        hashed_password = self.hash_password(password)
+        cursor = self.conn.cursor()
         try:
-            count = self.db.get_user_count(role)
-            username = f"{role}{count + 1}"
-            password = f"{role}{count + 1}pass"
-            success = self.db.create_user(username, password, role)
-            if success:
-                return {"username": username, "password": password}
-            else:
-                return {"error": "El usuario ya existe"}
+            cursor.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+                           (username, hashed_password, role))
+            self.conn.commit()
+            return True
         except Exception as e:
-            return {"error": f"Error al crear usuario: {str(e)}"}
+            print(f"Error al crear el usuario: {e}")
+            return False
 
-    def create_mesas(self, num_mesas):
-        try:
-            cuentas_creadas = []
-            for i in range(1, num_mesas + 1):
-                username = f"mesa{i}"
-                password = f"mesa{i}pass"
-                success = self.db.create_user(username, password, "cliente")
-                if success:
-                    cuentas_creadas.append(f"Usuario: {username}, Contraseña: {password}")
-                else:
-                    cuentas_creadas.append(f"Error al crear la cuenta de {username}: ya existe.")
-            return "\n".join(cuentas_creadas)
-        except Exception as e:
-            return f"Error al crear mesas: {str(e)}"
+    def get_all_users(self):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT id, username, role FROM users")
+        return cursor.fetchall()
 
-    def close(self):
-        self.db.close()
+    def close_connection(self):
+        if self.conn:
+            self.conn.close()

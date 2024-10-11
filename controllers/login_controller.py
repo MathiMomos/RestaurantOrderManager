@@ -1,17 +1,24 @@
-from data.database import Database
-#a
+# controllers/login_controller.py
+import hashlib
+from data.database import create_connection
+
 class LoginController:
     def __init__(self):
-        self.db = Database()
+        self.conn = create_connection('data/restaurant.db')
 
-    def login(self, username, password):
-        user = self.db.get_user(username, password)
-        print(f"Intento de inicio de sesión: {username}, contraseña: {password}")
+    def hash_password(self, password):
+        return hashlib.sha256(password.encode()).hexdigest()
 
-        if user:
-            return {"username": user[1], "role": user[3]}
-        else:
-            return {"error": "Usuario o contraseña incorrectos"}
+    def validate_user(self, username, password):
+        hashed_password = self.hash_password(password)
+        cursor = self.conn.cursor()
+        cursor.execute(
+            "SELECT id, role FROM users WHERE username = ? AND password = ?",
+            (username, hashed_password)
+        )
+        result = cursor.fetchone()
+        return result  # Retorna (user_id, role) o None si no es válido
 
-    def close(self):
-        self.db.close()
+    def close_connection(self):
+        if self.conn:
+            self.conn.close()

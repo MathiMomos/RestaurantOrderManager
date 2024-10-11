@@ -1,24 +1,58 @@
-from data.database import Database
-import json
-#a
+# controllers/cliente_controller.py
+from data.database import create_connection
+
 class ClienteController:
-    def __init__(self, chef_controller):
-        self.db = Database()
-        self.chef_controller = chef_controller  # Agregar referencia al ChefController
+    def __init__(self):
+        self.conn = create_connection('data/restaurant.db')
 
-    def start_visit(self, mesa_number):
-        self.db.update_mesa_status(mesa_number, 'occupied')
+    def get_menu_items(self):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT id, name, price FROM menu")
+        return cursor.fetchall()
 
-    def add_to_order(self, mesa_number, items, total_price):
-        items_json = json.dumps(items)
-        self.db.create_order(mesa_number, items_json, total_price)
-        self.chef_controller.receive_order(mesa_number, items, total_price)  # Notificar al chef
+    def get_current_order(self, user_id):
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            SELECT id, items, total FROM orders
+            WHERE user_id = ? AND status = 'pendiente'
+        """, (user_id,))
+        return cursor.fetchone()
 
-    def get_order(self, mesa_number):
-        return self.db.get_orders_by_mesa(mesa_number)
+    def add_item_to_order(self, user_id, item_name, item_price):
+        cursor = self.conn.cursor()
+        order = self.get_current_order(user_id)
+        if order:
+            order_id, items, total = order
+            new_items = items + f"{item_name}, "
+            new_total = total + item_price
+            cursor.execute("""
+                UPDATE orders
+                SET items = ?, total = ?
+                WHERE id = ?
+            """, (new_items, new_total, order_id))
+        else:
+            new_items = f"{item_name}, "
+            new_total = item_price
+            cursor.execute("""
+                INSERT INTO orders (user_id, items, status, total)
+                VALUES (?, ?, 'pendiente', ?)
+            """, (user_id, new_items, new_total))
+        self.conn.commit()
 
-    def finish_visit(self, mesa_number):
-        self.db.update_mesa_status(mesa_number, 'free')
+    def confirm_order(self, order_id):
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute("""
+                UPDATE orders
+                SET status = 'confirmado'
+                WHERE id = ?
+            """, (order_id,))
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"Error al confirmar el pedido: {e}")
+            return False
 
-    def close(self):
-        self.db.close()
+    def close_connection(self):
+        if self.conn:
+            self.conn.close()

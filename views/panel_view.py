@@ -1,168 +1,78 @@
+# views/panel_view.py
+
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 from controllers.panel_controller import PanelController
 
-
 class PanelView:
-    def __init__(self, root):
+    def __init__(self, root, user_id):
         self.root = root
+        self.root.title("Panel - Restaurant Order Manager")
         self.controller = PanelController()
-        self.root.geometry("1200x600")
-        self.root.configure(bg="#DDD6CC")
-        self.cart = {}
-        self.menu_frame = tk.Frame(self.root, bg="#DDD6CC")
-        self.menu_frame.pack(fill=tk.BOTH, expand=True)
-        self.show_menu("ENTRADAS")
+        self.user_id = user_id
 
-    def show_menu(self, category="ENTRADAS"):
-        self.clear_frame()
-        tk.Label(self.menu_frame, text=category.upper(), font=("Arial", 36), bg="#DDD6CC", fg="#19222B").pack(pady=(50, 10))
+        self.label_menu = tk.Label(root, text="Menú")
+        self.label_menu.pack(pady=10)
 
-        menu_items = {
-            "ENTRADAS": [
-                ("Papa a la Huancaína", 15),
-                ("Causa Rellena", 18),
-                ("Anticuchos con Papas", 22),
-                ("Choclo con Queso", 14),
-                ("Ocopa Arequipeña", 16),
-                ("Tamales Criollos", 12),
-                ("Choros a la Chalaca", 20),
-                ("Leche de Tigre", 18),
-                ("Papa Rellena", 15)
-            ],
-            "SOPAS": [
-                ("Sopa a la Criolla", 18),
-                ("Caldo de Gallina", 16),
-                ("Chupe de Camarones", 22),
-                ("Shambar Norteño", 20),
-                ("Sancochado", 24),
-                ("Parihuela", 25),
-                ("Sopa de Choros", 18),
-                ("Aguadito de Pollo", 15),
-                ("Chilcano de Pescado", 17)
-            ],
-            "PLATOS PRINCIPALES": [
-                ("Lomo Saltado", 35),
-                ("Ají de Gallina", 28),
-                ("Seco de Res con Frejoles", 32),
-                ("Tacu Tacu con Lomo", 38),
-                ("Ceviche Mixto", 40),
-                ("Arroz con Pollo", 30),
-                ("Causa Limeña", 22),
-                ("Papa a la Huancaína", 18),
-                ("Carapulcra con Sopa Seca", 36)
-            ],
-            "GUARNICIONES": [
-                ("Arroz Blanco", 6),
-                ("Papas Fritas", 10),
-                ("Yuquitas Fritas", 12),
-                ("Ensalada Criolla", 10),
-                ("Tostones de Plátano", 15),
-                ("Arroz Chaufa", 18),
-                ("Choclo con Queso", 14),
-                ("Tacu Tacu", 16),
-                ("Camotes Fritos", 10)
-            ],
-            "POSTRES": [
-                ("Suspiro a la Limeña", 15),
-                ("Mazamorra Morada", 12),
-                ("Arroz con Leche", 10),
-                ("Turrón de Doña Pepa", 18),
-                ("Picarones", 20),
-                ("Crema Volteada", 14),
-                ("Alfajores", 8),
-                ("Helado de Lucuma", 16),
-                ("King Kong de Manjar Blanco", 20)
-            ],
-            "BEBIDAS": [
-                ("Chicha Morada", 8),
-                ("Emoliente", 7),
-                ("Refresco de Maracuyá", 7),
-                ("Jugo de Naranja", 10),
-                ("Pisco Sour", 18),
-                ("Cerveza Artesanal", 12),
-                ("Agua Mineral", 5),
-                ("Limonada Clásica", 9),
-                ("Chilcano de Pisco", 16)
-            ]
-        }
+        self.tree_menu = ttk.Treeview(root, columns=("ID", "Plato", "Precio"), show='headings')
+        self.tree_menu.heading("ID", text="ID")
+        self.tree_menu.heading("Plato", text="Plato")
+        self.tree_menu.heading("Precio", text="Precio")
+        self.tree_menu.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
 
-        items = menu_items[category]
-        button_frame = tk.Frame(self.menu_frame, bg="#DDD6CC")
-        button_frame.pack(pady=30)
+        self.button_add = tk.Button(root, text="Agregar al Pedido", command=self.add_selected_item)
+        self.button_add.pack(pady=5)
 
-        for i in range(0, min(len(items), 9)):
-            item, price = items[i]
-            btn = tk.Button(button_frame, text=f"{item} - S/ {price}", font=("Arial", 16),
-                            command=lambda item=item: self.add_to_cart(item), width=25, height=3,
-                            bg="#19222B", fg="#BD9240", activebackground="#BD9240", activeforeground="#19222B")
-            btn.grid(row=i // 3, column=i % 3, padx=20, pady=10)
+        self.label_order = tk.Label(root, text="Pedido Actual")
+        self.label_order.pack(pady=10)
 
-        nav_frame = tk.Frame(self.menu_frame, bg="#DDD6CC")
-        nav_frame.pack(side=tk.BOTTOM, pady=(10, 30), fill=tk.X)
+        self.tree_order = ttk.Treeview(root, columns=("Platos", "Total"), show='headings')
+        self.tree_order.heading("Platos", text="Platos")
+        self.tree_order.heading("Total", text="Total")
+        self.tree_order.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
 
-        tk.Button(nav_frame, text="<< Anterior", command=lambda: self.navigate_categories(category, -1),
-                  font=("Arial", 14), height=2, bg="#19222B", fg="#BD9240", activebackground="#BD9240",
-                  activeforeground="#19222B").pack(side=tk.LEFT, padx=(95, 5))
+        self.button_confirm = tk.Button(root, text="Confirmar Pedido", command=self.confirm_order)
+        self.button_confirm.pack(pady=10)
 
-        tk.Button(nav_frame, text="Ver Pedido", command=self.show_cart,
-                  font=("Arial", 14), height=2, bg="#19222B", fg="#BD9240", activebackground="#BD9240",
-                  activeforeground="#19222B").pack(side=tk.LEFT, padx=(10, 10), expand=True)
+        self.load_menu()
+        self.load_order()
 
-        tk.Button(nav_frame, text="Siguiente >>", command=lambda: self.navigate_categories(category, 1),
-                  font=("Arial", 14), height=2, bg="#19222B", fg="#BD9240", activebackground="#BD9240",
-                  activeforeground="#19222B").pack(side=tk.RIGHT, padx=(5, 95))
+    def load_menu(self):
+        for row in self.tree_menu.get_children():
+            self.tree_menu.delete(row)
+        menu_items = self.controller.get_menu_items()
+        for item in menu_items:
+            self.tree_menu.insert("", tk.END, values=item)
 
-    def navigate_categories(self, current_category, direction):
-        categories = ["ENTRADAS", "SOPAS", "PLATOS PRINCIPALES", "GUARNICIONES", "POSTRES", "BEBIDAS"]
-        current_index = categories.index(current_category)
-        new_index = (current_index + direction) % len(categories)
-        self.show_menu(categories[new_index])
-
-    def add_to_cart(self, item):
-        if item in self.cart:
-            self.cart[item] += 1
+    def add_selected_item(self):
+        selected = self.tree_menu.focus()
+        if selected:
+            item = self.tree_menu.item(selected, 'values')
+            item_name = item[1]
+            item_price = float(item[2])
+            self.controller.add_item_to_order(self.user_id, item_name, item_price)
+            messagebox.showinfo("Éxito", f"'{item_name}' agregado al pedido.")
+            self.load_order()
         else:
-            self.cart[item] = 1
-        messagebox.showinfo("Agregado", f"Has agregado {item} a tu pedido.")
+            messagebox.showwarning("Advertencia", "Por favor, selecciona un plato para agregar.")
 
-    def show_cart(self):
-        self.clear_frame()
-        tk.Label(self.menu_frame, text="PEDIDO", font=("Arial", 24), bg="#DDD6CC", fg="#19222B").pack(pady=(40, 10))
-
-        if not self.cart:
-            tk.Label(self.menu_frame, text="No hay platos en tu pedido.", font=("Arial", 16), bg="#DDD6CC", fg="#19222B").pack(pady=20)
+    def load_order(self):
+        for row in self.tree_order.get_children():
+            self.tree_order.delete(row)
+        order = self.controller.get_user_order(self.user_id)
+        if order:
+            order_id, items, total = order
+            platos = items.rstrip(", ")
+            self.tree_order.insert("", tk.END, values=(platos, f"${total:.2f}"))
         else:
-            for item, qty in self.cart.items():
-                frame = tk.Frame(self.menu_frame, bg="#DDD6CC")
-                frame.pack(pady=10)
-                tk.Label(frame, text=f"{item} x{qty}", font=("Arial", 16), bg="#DDD6CC", fg="#19222B").pack(side=tk.LEFT)
-                tk.Button(frame, text="X", command=lambda i=item: self.remove_from_cart(i), bg="#BD9240",
-                          fg="#19222B").pack(side=tk.RIGHT)
+            self.tree_order.insert("", tk.END, values=("No hay pedidos actuales.", "$0.00"))
 
-        tk.Button(self.menu_frame, text="Agregar Platos", command=self.show_menu, font=("Arial", 16), height=2,
-                  bg="#19222B", fg="#BD9240").pack(pady=10)
-        tk.Button(self.menu_frame, text="Confirmar Orden", command=self.confirm_order, font=("Arial", 16), height=2,
-                  bg="#19222B", fg="#BD9240").pack(pady=10)
-
-    def remove_from_cart(self, item):
-        if item in self.cart:
-            del self.cart[item]
-        self.show_cart()
-
-    # a
     def confirm_order(self):
-        messagebox.showinfo("Orden Confirmada", "Tu orden ha sido confirmada.")
-        self.cart.clear()
-        self.show_menu()
-
-    def clear_frame(self):
-        for widget in self.menu_frame.winfo_children():
-            widget.destroy()
-
-
-# Para ejecutar la aplicación
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = PanelView(root)
-    root.mainloop()
+        order = self.controller.get_user_order(self.user_id)
+        if order:
+            confirm = messagebox.askyesno("Confirmar Pedido", "¿Deseas confirmar tu pedido y enviarlo a la caja?")
+            if confirm:
+                messagebox.showinfo("Éxito", "Pedido confirmado y enviado a la caja.")
+                self.load_order()
+        else:
+            messagebox.showwarning("Advertencia", "No tienes ningún pedido para confirmar.")

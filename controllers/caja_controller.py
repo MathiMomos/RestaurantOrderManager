@@ -1,5 +1,3 @@
-# caja_controller.py
-
 from data.database import Database
 
 class CajaController:

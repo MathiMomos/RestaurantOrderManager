@@ -7,19 +7,14 @@ class PanelView:
         self.root = root
         self.controller = PanelController()
         self.root.geometry("1200x600")
-        self.cart = {}  # Diccionario para almacenar los platos y su cantidad
+        self.cart = {}
         self.menu_frame = tk.Frame(self.root)
         self.menu_frame.pack(fill=tk.BOTH, expand=True)
-
-        # Inicializar menú
         self.show_menu("ENTRADAS")
 
     def show_menu(self, category="ENTRADAS"):
         self.clear_frame()
-
-        tk.Label(self.menu_frame, text=category.upper(), font=("Arial", 28)).pack(pady=20)  # Título más grande
-
-        # Diccionario de platos por categoría (ajusta según tu menú)
+        tk.Label(self.menu_frame, text=category.upper(), font=("Arial", 28)).pack(pady=20)
         menu_items = {
             "ENTRADAS": [
                 ("Papa a la Huancaína", 15),
@@ -88,23 +83,18 @@ class PanelView:
                 ("Chilcano de Pisco", 16)
             ]
         }
-
         items = menu_items[category]
-
-        # Crear un subframe para los botones organizados en grid
         button_frame = tk.Frame(self.menu_frame)
         button_frame.pack(pady=10)
 
-        # Crear botones en una cuadrícula de 3 columnas
         for i in range(0, min(len(items), 9)):
             item, price = items[i]
             btn = tk.Button(button_frame, text=f"{item} - S/ {price}", font=("Arial", 16),
-                            command=lambda item=item: self.add_to_cart(item), width=25, height=3)  # Botones más anchos
-            btn.grid(row=i // 3, column=i % 3, padx=20, pady=15)  # Aumentar el espaciado entre botones
+                            command=lambda item=item: self.add_to_cart(item), width=25, height=3)
+            btn.grid(row=i // 3, column=i % 3, padx=20, pady=15)
 
-        # Botones de navegación para cambiar de categoría
         nav_frame = tk.Frame(self.menu_frame)
-        nav_frame.pack(side=tk.BOTTOM, pady=20)  # Colocar en la parte inferior
+        nav_frame.pack(side=tk.BOTTOM, pady=20)
 
         tk.Button(nav_frame, text="<< Anterior", command=lambda: self.navigate_categories(category, -1), font=("Arial", 14), height=2).pack(side=tk.LEFT, padx=10)
         tk.Button(nav_frame, text="Ver Pedido", command=self.show_cart, font=("Arial", 14), height=2).pack(side=tk.LEFT, padx=10)
@@ -125,19 +115,16 @@ class PanelView:
 
     def show_cart(self):
         self.clear_frame()
+        tk.Label(self.menu_frame, text="Tu Pedido", font=("Arial", 24)).pack(pady=20)
 
-        tk.Label(self.menu_frame, text="Tu Pedido", font=("Arial", 24)).pack(pady=20)  # Título más grande
-
-        # Mostrar platos en el carrito
         for item, qty in self.cart.items():
             frame = tk.Frame(self.menu_frame)
             frame.pack(pady=10)
             tk.Label(frame, text=f"{item} x{qty}", font=("Arial", 16)).pack(side=tk.LEFT)
             tk.Button(frame, text="X", command=lambda i=item: self.remove_from_cart(i)).pack(side=tk.RIGHT)
 
-        # Botones de opciones
-        tk.Button(self.menu_frame, text="Agregar Platos", command=self.show_menu, font=("Arial", 16), height=2).pack(pady=10)  # Botón más grande
-        tk.Button(self.menu_frame, text="Confirmar Orden", command=self.confirm_order, font=("Arial", 16), height=2).pack(pady=10)  # Botón más grande
+        tk.Button(self.menu_frame, text="Agregar Platos", command=self.show_menu, font=("Arial", 16), height=2).pack(pady=10)
+        tk.Button(self.menu_frame, text="Confirmar Orden", command=self.confirm_order, font=("Arial", 16), height=2).pack(pady=10)
 
     def remove_from_cart(self, item):
         if item in self.cart:
@@ -145,7 +132,6 @@ class PanelView:
         self.show_cart()
 
     def confirm_order(self):
-        # Lógica para confirmar la orden
         messagebox.showinfo("Orden Confirmada", "Tu orden ha sido confirmada.")
         self.cart.clear()
         self.show_menu()

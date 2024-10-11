@@ -7,8 +7,8 @@ class AdminController:
     def create_user(self, role):
         try:
             count = self.db.get_user_count(role)
-            username = f"{role}{count + 1}"  # Generar chef1, caja1, etc.
-            password = f"{role}{count + 1}pass"  # Contraseñas simples
+            username = f"{role}{count + 1}"
+            password = f"{role}{count + 1}pass"
             success = self.db.create_user(username, password, role)
             if success:
                 return {"username": username, "password": password}

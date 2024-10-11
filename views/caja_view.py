@@ -1,5 +1,3 @@
-# caja_view.py
-
 import tkinter as tk
 from tkinter import messagebox
 from controllers.caja_controller import CajaController
@@ -19,17 +17,17 @@ class CajaView:
 
     def refresh_orders(self):
         orders = self.controller.get_orders()
-        self.order_listbox.delete(0, tk.END)  # Limpiar lista
+        self.order_listbox.delete(0, tk.END)
         for order in orders:
             self.order_listbox.insert(tk.END, f"ID: {order[0]}, Mesa: {order[1]}, Total: {order[3]}")
 
     def delete_order(self):
         selected = self.order_listbox.curselection()
         if selected:
-            order_id = self.controller.get_orders()[selected[0]][0]  # Obtener ID
+            order_id = self.controller.get_orders()[selected[0]][0]
             self.controller.delete_order(order_id)
             messagebox.showinfo("Éxito", "Pedido eliminado.")
-            self.refresh_orders()  # Actualizar la lista
+            self.refresh_orders()
         else:
             messagebox.showerror("Error", "Selecciona un pedido.")
 

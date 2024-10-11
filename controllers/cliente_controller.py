@@ -5,16 +5,13 @@ class ClienteController:
         self.db = Database()
 
     def start_visit(self, mesa_number):
-        # Marcar mesa como ocupada usando mesa_number
         self.db.cursor.execute("UPDATE mesas SET status = 'occupied' WHERE mesa_number = ?", (mesa_number,))
         self.db.conn.commit()
 
     def add_to_order(self, mesa_number, items, total_price):
-        # Aquí se asegura de que se agregue correctamente a la base de datos
         self.db.create_order(mesa_number, items, total_price)
 
     def confirm_order(self, mesa_number):
-        # Actualiza el estado del pedido a "pending" para que lo vea el chef
         self.db.cursor.execute("UPDATE orders SET status = 'pending' WHERE mesa_number = ? AND status = 'draft'", (mesa_number,))
         self.db.conn.commit()
 

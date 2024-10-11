@@ -8,7 +8,6 @@ class Database:
         self.create_default_admin()
 
     def create_tables(self):
-        # Crear tabla de usuarios
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,8 +16,6 @@ class Database:
                 role TEXT NOT NULL
             )
         ''')
-
-        # Crear tabla de settings
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS settings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,8 +23,6 @@ class Database:
                 setting_value TEXT NOT NULL
             )
         ''')
-
-        # Crear tabla de órdenes
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS orders (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,8 +32,6 @@ class Database:
                 status TEXT NOT NULL DEFAULT 'pending'
             )
         ''')
-
-        # Crear tabla de mesas
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS mesas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,11 +39,9 @@ class Database:
                 status TEXT NOT NULL DEFAULT 'free'
             )
         ''')
-
         self.conn.commit()
 
     def create_default_admin(self):
-        # Crear un usuario admin si no existe
         self.cursor.execute("SELECT * FROM users WHERE username = 'admin'")
         if not self.cursor.fetchone():
             self.cursor.execute(
@@ -68,9 +59,8 @@ class Database:
             self.conn.commit()
             return True
         except sqlite3.IntegrityError:
-            return False  # Si el usuario ya existe
+            return False
         except Exception as e:
-            print(f"Error al crear usuario: {str(e)}")
             return False
 
     def get_user(self, username, password):
@@ -81,7 +71,6 @@ class Database:
             )
             return self.cursor.fetchone()
         except Exception as e:
-            print(f"Error al obtener usuario: {str(e)}")
             return None
 
     def get_user_count(self, role):
@@ -89,7 +78,6 @@ class Database:
             self.cursor.execute("SELECT COUNT(*) FROM users WHERE role = ?", (role,))
             return self.cursor.fetchone()[0]
         except Exception as e:
-            print(f"Error al contar usuarios: {str(e)}")
             return 0
 
     def get_mesas_status(self):
@@ -97,7 +85,6 @@ class Database:
             self.cursor.execute("SELECT mesa_number, status FROM mesas")
             return self.cursor.fetchall()
         except Exception as e:
-            print(f"Error al obtener estado de las mesas: {str(e)}")
             return []
 
     def update_mesa_status(self, mesa_number, new_status):
@@ -108,9 +95,8 @@ class Database:
             )
             self.conn.commit()
         except Exception as e:
-            print(f"Error al actualizar estado de la mesa: {str(e)}")
+            pass
 
-    # Métodos para manejar órdenes
     def create_order(self, mesa_number, order_items, total_price):
         try:
             self.cursor.execute(
@@ -119,14 +105,13 @@ class Database:
             )
             self.conn.commit()
         except Exception as e:
-            print(f"Error al crear orden: {str(e)}")
+            pass
 
     def get_orders_by_mesa(self, mesa_number):
         self.cursor.execute("SELECT * FROM orders WHERE mesa_number = ? AND status = 'pending'", (mesa_number,))
         return self.cursor.fetchall()
 
     def get_all_orders(self):
-        """Obtiene todos los pedidos pendientes."""
         self.cursor.execute("SELECT * FROM orders WHERE status = 'pending'")
         return self.cursor.fetchall()
 
@@ -139,7 +124,6 @@ class Database:
         self.conn.commit()
 
     def get_order_details(self, order_id):
-        """Obtiene los detalles de un pedido específico."""
         self.cursor.execute("SELECT order_items FROM orders WHERE id = ?", (order_id,))
         return self.cursor.fetchone()
 

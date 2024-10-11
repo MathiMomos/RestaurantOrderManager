@@ -17,14 +17,14 @@ CREATE TABLE IF NOT EXISTS settings (
 CREATE TABLE IF NOT EXISTS orders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     mesa_number INTEGER NOT NULL,
-    order_items TEXT NOT NULL,    -- Lista de ítems en el pedido
+    order_items TEXT NOT NULL,    -- Lista de ítems en el pedido (JSON)
     total_price REAL NOT NULL,    -- Precio total del pedido
-    status TEXT NOT NULL DEFAULT 'pending'  -- Estados: pending, sent, completed
+    status TEXT NOT NULL DEFAULT 'pending'  -- Estados: pending, completed
 );
 
 -- Tabla para el estado de las mesas
 CREATE TABLE IF NOT EXISTS mesas (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     mesa_number INTEGER UNIQUE NOT NULL,
-    status TEXT NOT NULL DEFAULT 'free'  -- Estados: free (mesa libre), occupied (mesa ocupada)
+    status TEXT NOT NULL DEFAULT 'free'  -- Estados: free, occupied
 );

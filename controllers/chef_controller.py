@@ -4,13 +4,17 @@ class ChefController:
     def __init__(self):
         self.db = Database()
 
-    def get_orders(self):
-        self.db.cursor.execute("SELECT * FROM orders WHERE status IN ('pending', 'sent')")
-        return self.db.cursor.fetchall()
+    def get_pending_orders(self):
+        orders = self.db.get_all_pending_orders()
+        return orders
 
     def confirm_order(self, order_id):
-        self.db.cursor.execute("UPDATE orders SET status = 'completed' WHERE id = ?", (order_id,))
-        self.db.conn.commit()
+        self.db.confirm_order(order_id)
+
+    def receive_order(self, mesa_number, items, total_price):
+        """Recibir un pedido desde el ClienteController y almacenarlo en la base de datos."""
+        items_json = json.dumps(items)
+        self.db.create_order(mesa_number, items_json, total_price)  # Método para guardar en la base de datos
 
     def close(self):
         self.db.close()

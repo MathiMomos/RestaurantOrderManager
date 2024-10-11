@@ -7,26 +7,37 @@ class LoginView:
         self.root = root
         self.root.title("Login")
         self.root.geometry("1200x600")
-        self.root.configure(bg="#F0F0F0")
-        canvas = tk.Canvas(self.root, width=500, height=500, bg="#F0F0F0", highlightthickness=0)
+        self.root.configure(bg="#DDD6CC")
+        canvas = tk.Canvas(self.root, width=500, height=500, bg="#DDD6CC", highlightthickness=0)
         canvas.place(relx=0.5, rely=0.5, anchor="center")
-        self.round_rectangle(canvas, 50, 50, 450, 450, radius=50, fill="#D3D3D3", outline="#2F2F2F", width=2)
-        title = tk.Label(self.root, text="LOGIN", font=("Helvetica", 32, "bold"), bg="#D3D3D3", fg="#333")
+        self.round_rectangle(canvas, 50, 50, 450, 450, radius=50, fill="#19222B", outline="#2F2F2F", width=2)
+
+        title = tk.Label(self.root, text="LOGIN", font=("Helvetica", 32, "bold"), bg="#19222B", fg="#BD9240")
         title.place(relx=0.5, rely=0.25, anchor="center")
-        user_label = tk.Label(self.root, text="USUARIO", font=("Helvetica", 14), bg="#D3D3D3", fg="#333")
+
+        user_label = tk.Label(self.root, text="USUARIO", font=("Helvetica", 14), bg="#19222B", fg="#BD9240")
         user_label.place(relx=0.5, rely=0.38, anchor="center")
-        self.username = tk.Entry(self.root, font=("Helvetica", 12))
+
+        self.username = tk.Entry(self.root, font=("Helvetica", 12), bg="#BD9240", fg="#19222B")
         self.username.place(relx=0.5, rely=0.43, anchor="center", width=250, height=30)
-        password_label = tk.Label(self.root, text="CONTRASEÑA", font=("Helvetica", 14), bg="#D3D3D3", fg="#333")
+
+        password_label = tk.Label(self.root, text="CONTRASEÑA", font=("Helvetica", 14), bg="#19222B", fg="#BD9240")
         password_label.place(relx=0.5, rely=0.53, anchor="center")
-        self.password = tk.Entry(self.root, font=("Helvetica", 12), show="*")
+
+        self.password = tk.Entry(self.root, font=("Helvetica", 12), show="*", bg="#BD9240", fg="#19222B")
         self.password.place(relx=0.5, rely=0.58, anchor="center", width=250, height=30)
+
         self.show_password_var = tk.IntVar()
         show_password_check = tk.Checkbutton(self.root, text="Ver Contraseña", variable=self.show_password_var,
-                                             onvalue=1, offvalue=0, command=self.toggle_password, bg="#D3D3D3")
+                                             onvalue=1, offvalue=0, command=self.toggle_password,
+                                             bg="#19222B", fg="#BD9240", selectcolor="#19222B")
         show_password_check.place(relx=0.5, rely=0.65, anchor="center")
-        login_button = tk.Button(self.root, text="Login", font=("Helvetica", 14), command=self.login)
+
+        # Botón Login con fondo #BD9240 y texto #19222B
+        login_button = tk.Button(self.root, text="Login", font=("Helvetica", 14), command=self.login,
+                                 bg="#BD9240", fg="#19222B", activebackground="#BD9240", activeforeground="#19222B")
         login_button.place(relx=0.5, rely=0.75, anchor="center", width=150, height=40)
+
         self.controller = LoginController()
 
     def round_rectangle(self, canvas, x1, y1, x2, y2, radius=25, **kwargs):

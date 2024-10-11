@@ -2,19 +2,22 @@ import tkinter as tk
 from tkinter import messagebox
 from controllers.panel_controller import PanelController
 
+
 class PanelView:
     def __init__(self, root):
         self.root = root
         self.controller = PanelController()
         self.root.geometry("1200x600")
+        self.root.configure(bg="#DDD6CC")
         self.cart = {}
-        self.menu_frame = tk.Frame(self.root)
+        self.menu_frame = tk.Frame(self.root, bg="#DDD6CC")
         self.menu_frame.pack(fill=tk.BOTH, expand=True)
         self.show_menu("ENTRADAS")
 
     def show_menu(self, category="ENTRADAS"):
         self.clear_frame()
-        tk.Label(self.menu_frame, text=category.upper(), font=("Arial", 28)).pack(pady=20)
+        tk.Label(self.menu_frame, text=category.upper(), font=("Arial", 36), bg="#DDD6CC", fg="#19222B").pack(pady=(50, 10))
+
         menu_items = {
             "ENTRADAS": [
                 ("Papa a la Huancaína", 15),
@@ -83,22 +86,32 @@ class PanelView:
                 ("Chilcano de Pisco", 16)
             ]
         }
+
         items = menu_items[category]
-        button_frame = tk.Frame(self.menu_frame)
-        button_frame.pack(pady=10)
+        button_frame = tk.Frame(self.menu_frame, bg="#DDD6CC")
+        button_frame.pack(pady=30)
 
         for i in range(0, min(len(items), 9)):
             item, price = items[i]
             btn = tk.Button(button_frame, text=f"{item} - S/ {price}", font=("Arial", 16),
-                            command=lambda item=item: self.add_to_cart(item), width=25, height=3)
-            btn.grid(row=i // 3, column=i % 3, padx=20, pady=15)
+                            command=lambda item=item: self.add_to_cart(item), width=25, height=3,
+                            bg="#19222B", fg="#BD9240", activebackground="#BD9240", activeforeground="#19222B")
+            btn.grid(row=i // 3, column=i % 3, padx=20, pady=10)
 
-        nav_frame = tk.Frame(self.menu_frame)
-        nav_frame.pack(side=tk.BOTTOM, pady=20)
+        nav_frame = tk.Frame(self.menu_frame, bg="#DDD6CC")
+        nav_frame.pack(side=tk.BOTTOM, pady=(10, 30), fill=tk.X)
 
-        tk.Button(nav_frame, text="<< Anterior", command=lambda: self.navigate_categories(category, -1), font=("Arial", 14), height=2).pack(side=tk.LEFT, padx=10)
-        tk.Button(nav_frame, text="Ver Pedido", command=self.show_cart, font=("Arial", 14), height=2).pack(side=tk.LEFT, padx=10)
-        tk.Button(nav_frame, text="Siguiente >>", command=lambda: self.navigate_categories(category, 1), font=("Arial", 14), height=2).pack(side=tk.LEFT, padx=10)
+        tk.Button(nav_frame, text="<< Anterior", command=lambda: self.navigate_categories(category, -1),
+                  font=("Arial", 14), height=2, bg="#19222B", fg="#BD9240", activebackground="#BD9240",
+                  activeforeground="#19222B").pack(side=tk.LEFT, padx=(95, 5))
+
+        tk.Button(nav_frame, text="Ver Pedido", command=self.show_cart,
+                  font=("Arial", 14), height=2, bg="#19222B", fg="#BD9240", activebackground="#BD9240",
+                  activeforeground="#19222B").pack(side=tk.LEFT, padx=(10, 10), expand=True)
+
+        tk.Button(nav_frame, text="Siguiente >>", command=lambda: self.navigate_categories(category, 1),
+                  font=("Arial", 14), height=2, bg="#19222B", fg="#BD9240", activebackground="#BD9240",
+                  activeforeground="#19222B").pack(side=tk.RIGHT, padx=(5, 95))
 
     def navigate_categories(self, current_category, direction):
         categories = ["ENTRADAS", "SOPAS", "PLATOS PRINCIPALES", "GUARNICIONES", "POSTRES", "BEBIDAS"]
@@ -115,16 +128,22 @@ class PanelView:
 
     def show_cart(self):
         self.clear_frame()
-        tk.Label(self.menu_frame, text="Tu Pedido", font=("Arial", 24)).pack(pady=20)
+        tk.Label(self.menu_frame, text="PEDIDO", font=("Arial", 24), bg="#DDD6CC", fg="#19222B").pack(pady=(40, 10))
 
-        for item, qty in self.cart.items():
-            frame = tk.Frame(self.menu_frame)
-            frame.pack(pady=10)
-            tk.Label(frame, text=f"{item} x{qty}", font=("Arial", 16)).pack(side=tk.LEFT)
-            tk.Button(frame, text="X", command=lambda i=item: self.remove_from_cart(i)).pack(side=tk.RIGHT)
+        if not self.cart:
+            tk.Label(self.menu_frame, text="No hay platos en tu pedido.", font=("Arial", 16), bg="#DDD6CC", fg="#19222B").pack(pady=20)
+        else:
+            for item, qty in self.cart.items():
+                frame = tk.Frame(self.menu_frame, bg="#DDD6CC")
+                frame.pack(pady=10)
+                tk.Label(frame, text=f"{item} x{qty}", font=("Arial", 16), bg="#DDD6CC", fg="#19222B").pack(side=tk.LEFT)
+                tk.Button(frame, text="X", command=lambda i=item: self.remove_from_cart(i), bg="#BD9240",
+                          fg="#19222B").pack(side=tk.RIGHT)
 
-        tk.Button(self.menu_frame, text="Agregar Platos", command=self.show_menu, font=("Arial", 16), height=2).pack(pady=10)
-        tk.Button(self.menu_frame, text="Confirmar Orden", command=self.confirm_order, font=("Arial", 16), height=2).pack(pady=10)
+        tk.Button(self.menu_frame, text="Agregar Platos", command=self.show_menu, font=("Arial", 16), height=2,
+                  bg="#19222B", fg="#BD9240").pack(pady=10)
+        tk.Button(self.menu_frame, text="Confirmar Orden", command=self.confirm_order, font=("Arial", 16), height=2,
+                  bg="#19222B", fg="#BD9240").pack(pady=10)
 
     def remove_from_cart(self, item):
         if item in self.cart:
@@ -139,3 +158,10 @@ class PanelView:
     def clear_frame(self):
         for widget in self.menu_frame.winfo_children():
             widget.destroy()
+
+
+# Para ejecutar la aplicación
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = PanelView(root)
+    root.mainloop()

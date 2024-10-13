@@ -1,4 +1,4 @@
-# controllers/login_controller.py .
+# controllers/login_controller.py
 import hashlib
 from data.database import create_connection
 
@@ -10,6 +10,9 @@ class LoginController:
         return hashlib.sha256(password.encode()).hexdigest()
 
     def validate_user(self, username, password):
+        if not username or not password:
+            return {'status': 'error', 'message': 'Por favor, ingresa tu usuario y contraseña.'}
+
         hashed_password = self.hash_password(password)
         cursor = self.conn.cursor()
         cursor.execute(
@@ -17,7 +20,10 @@ class LoginController:
             (username, hashed_password)
         )
         result = cursor.fetchone()
-        return result  # Retorna (user_id, role) o None si no es válido
+        if result:
+            return {'status': 'success', 'user_id': result[0], 'role': result[1]}
+        else:
+            return {'status': 'error', 'message': 'Usuario o contraseña incorrectos.'}
 
     def close_connection(self):
         if self.conn:

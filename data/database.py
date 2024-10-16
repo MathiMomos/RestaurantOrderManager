@@ -39,19 +39,21 @@ def initialize_database():
                     ("admin", hashed_password, "admin")
                 )
                 print("Cuenta de administrador creada por defecto.")
+
             # Insertar platos básicos si la tabla está vacía
             cursor.execute("SELECT COUNT(*) FROM menu")
             if cursor.fetchone()[0] == 0:
                 menu_items = [
-                    ("Hamburguesa", 5.99),
-                    ("Pizza", 8.99),
-                    ("Ensalada", 4.99),
-                    ("Pasta", 7.49),
-                    ("Tacos", 6.50)
+                    ("plato", "Hamburguesa", 5.99),
+                    ("plato", "Pizza", 8.99),
+                    ("plato", "Ensalada", 4.99),
+                    ("plato", "Pasta", 7.49),
+                    ("plato", "Tacos", 6.50)
                 ]
-                cursor.executemany("INSERT INTO menu (name, price) VALUES (?, ?)", menu_items)
+                cursor.executemany("INSERT INTO menu (category ,name, price) VALUES (? , ? , ?)", menu_items)
                 print("Platos básicos agregados al menú.")
             conn.commit()
+
             print("Base de datos inicializada correctamente.")
         except Error as e:
             print(f"Error al inicializar la base de datos: {e}")

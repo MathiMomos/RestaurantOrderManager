@@ -7,7 +7,7 @@ class ClienteController:
 
     def get_menu_items(self):
         cursor = self.conn.cursor()
-        cursor.execute("SELECT id, name, price FROM menu")
+        cursor.execute("SELECT id, category , name, price FROM menu")
         return cursor.fetchall()
 
     def get_current_order(self, user_id):

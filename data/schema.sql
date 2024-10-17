@@ -11,11 +11,11 @@ CREATE TABLE IF NOT EXISTS users (
 -- Tabla de pedidos
 CREATE TABLE IF NOT EXISTS orders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    users_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
     items TEXT NOT NULL,
     status TEXT NOT NULL CHECK(status IN ('pendiente', 'confirmado', 'en caja', 'finalizado')),
     total REAL NOT NULL,
-    FOREIGN KEY (users_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- Tabla de menú

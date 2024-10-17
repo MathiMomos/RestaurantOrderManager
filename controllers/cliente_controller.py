@@ -14,7 +14,7 @@ class ClienteController:
         cursor = self.conn.cursor()
         cursor.execute("""
             SELECT id, items, total FROM orders
-            WHERE user_id = ? AND status = 'pendiente'
+            WHERE users_id = ? AND status = 'pendiente'
         """, (user_id,))
         return cursor.fetchone()
 
@@ -34,7 +34,7 @@ class ClienteController:
             new_items = f"{item_name}, "
             new_total = item_price
             cursor.execute("""
-                INSERT INTO orders (user_id, items, status, total)
+                INSERT INTO orders (users_id, items, status, total)
                 VALUES (?, ?, 'pendiente', ?)
             """, (user_id, new_items, new_total))
         self.conn.commit()

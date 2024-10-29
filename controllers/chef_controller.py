@@ -10,7 +10,7 @@ class ChefController:
         cursor.execute("""
             SELECT orders.id, users.username, orders.items, orders.total, users.role
             FROM orders
-            JOIN users ON orders.users_id = users.id
+            JOIN users ON orders.user_id = users.id
             WHERE orders.status = 'confirmado'
         """)
         return cursor.fetchall()
@@ -21,7 +21,7 @@ class ChefController:
             # Obtener el rol del usuario que hizo el pedido
             cursor.execute("""
                 SELECT users.role FROM orders
-                JOIN users ON orders.users_id = users.id
+                JOIN users ON orders.user_id = users.id
                 WHERE orders.id = ?
             """, (order_id,))
             result = cursor.fetchone()

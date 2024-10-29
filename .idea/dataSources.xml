@@ -9,7 +9,7 @@
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
     <data-source source="LOCAL" name="restaurant" uuid="d7ae14e3-277e-4641-bec3-5c0eb07c19d8">
-      <driver-ref>sqlite.xerial</driver-ref>
+      <driver-ref>1806d07a-7d72-4aff-b1b1-efa27cda68c0</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:C:\Users\User\PycharmProjects\RestaurantOrderManager\data\restaurant.db</jdbc-url>

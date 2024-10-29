@@ -12,5 +12,7 @@ def main():
     LoginView(root)
     root.mainloop()
 
+    # para los que no le corre
+
 if __name__ == "__main__":
     main()

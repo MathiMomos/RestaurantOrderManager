@@ -1,7 +1,6 @@
-# views/login_view.py
-#perdon por la demora :v
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import Canvas, PhotoImage, Entry, Button, messagebox
+from pathlib import Path
 from controllers.login_controller import LoginController
 from views.admin_view import AdminView
 from views.chef_view import ChefView
@@ -10,63 +9,139 @@ from views.cliente_view import ClienteView
 from views.panel_view import PanelView
 
 class LoginView:
+    OUTPUT_PATH = Path(__file__).parent
+    ASSETS_PATH = OUTPUT_PATH / "pictureLogin"
+
+    def relative_to_assets(self, path: str) -> Path:
+        return self.ASSETS_PATH / Path(path)
+
     def __init__(self, root):
         self.root = root
         self.root.title("Login - Restaurant Order Manager")
-        self.root.geometry("1200x600")
-        self.root.configure(bg="white")
+        self.root.geometry("1280x720")
+        self.root.configure(bg="#FFFFFF")
         self.controller = LoginController()
 
-        # Crear el marco centralizado
-        self.frame_login = tk.Frame(root, bg="white", bd=2, relief=tk.RIDGE)
-        self.frame_login.place(relx=0.5, rely=0.5, anchor='center', width=400, height=400)
-
-        # Título de Login
-        self.label_title = tk.Label(self.frame_login, text="LOGIN", font=("Helvetica", 20, "bold"), bg="white")
-        self.label_title.pack(pady=(20, 20))
-
-        # Usuario
-        self.label_username = tk.Label(self.frame_login, text="USUARIO", font=("Helvetica", 12), bg="white")
-        self.label_username.pack(pady=(10, 5))
-
-        self.entry_username = tk.Entry(self.frame_login, font=("Helvetica", 12))
-        self.entry_username.pack(pady=5, padx=20, fill=tk.X)
-
-        # Contraseña
-        self.label_password = tk.Label(self.frame_login, text="CONTRASEÑA", font=("Helvetica", 12), bg="white")
-        self.label_password.pack(pady=(10, 5))
-
-        self.entry_password = tk.Entry(self.frame_login, show="*", font=("Helvetica", 12))
-        self.entry_password.pack(pady=5, padx=20, fill=tk.X)
-
-        # Mostrar Contraseña
-        self.var_show = tk.IntVar()
-        self.check_show = tk.Checkbutton(
-            self.frame_login,
-            text="Mostrar Contraseña",
-            variable=self.var_show,
-            command=self.toggle_password,
-            font=("Helvetica", 10),
-            bg="white"
+        # Crear el lienzo (canvas)
+        canvas = Canvas(
+            self.root,
+            bg="#FFFFFF",
+            height=720,
+            width=1280,
+            bd=0,
+            highlightthickness=0,
+            relief="ridge"
         )
-        self.check_show.pack(pady=5)
+
+        canvas.place(x=0, y=0)
+
+        # Cargar imágenes
+        self.image_image_1 = PhotoImage(file=self.relative_to_assets("image_1.png"))
+        canvas.create_image(639.0, 188.0, image=self.image_image_1)
+
+        self.image_image_2 = PhotoImage(file=self.relative_to_assets("image_2.png"))
+        canvas.create_image(639.0, 450.0, image=self.image_image_2)
+
+        entry_image_1 = PhotoImage(file=self.relative_to_assets("entry_1.png"))
+        canvas.create_image(639.5, 373.5, image=entry_image_1)
+
+        # Entradas de usuario
+        self.entry_username = Entry(
+            bd=0,
+            bg="#FFFFFF",
+            fg="#000716",
+            highlightthickness=0,
+            font=("Inter", 14)
+        )
+        self.entry_username.place(
+            x=371.0,
+            y=351.0,
+            width=537.0,
+            height=45.0
+        )
+
+        canvas.create_text(
+            359.0,
+            312.0,
+            anchor="nw",
+            text="Nombre de usuario",
+            fill="#34160E",
+            font=("Inter", 20 * -1)
+        )
+
+        entry_image_2 = PhotoImage(file=self.relative_to_assets("entry_2.png"))
+        canvas.create_image(639.5, 483.5, image=entry_image_2)
+
+        self.entry_password = Entry(
+            bd=0,
+            bg="#FFFFFF",
+            fg="#000716",
+            highlightthickness=0,
+            font=("Inter", 14),
+            show="*"
+        )
+
+        self.password_visible = False  # Cambiamos la variable a un atributo de instancia
+
+        self.entry_password.place(
+            x=371.0,
+            y=461.0,
+            width=495.0,
+            height=45.0
+        )
+
+        canvas.create_text(
+            361.0,
+            422.0,
+            anchor="nw",
+            text="Contraseña",
+            fill="#34160E",
+            font=("Inter", 20 * -1)
+        )
 
         # Botón de Login
-        self.button_login = tk.Button(
-            self.frame_login,
-            text="Iniciar Sesión",
-            command=self.login,
-            font=("Helvetica", 12, "bold"),
-            bg="#4CAF50",
-            fg="white",
-            width=20,
-            cursor="hand2"
+        button_image_1 = PhotoImage(file=self.relative_to_assets("button_1.png"))
+        button_1 = Button(
+            image=button_image_1,
+            borderwidth=0,
+            highlightthickness=0,
+            command=self.login,  # Conectamos el botón al método login
+            relief="flat",
+            background="#FFFFFF",
+            activebackground="#FFFFFF"
         )
-        self.button_login.pack(pady=20)
+        button_1.place(
+            x=359.0,
+            y=532.0,
+            width=562.0,
+            height=49.0
+        )
+
+        # Botón para alternar la visibilidad de la contraseña
+        button_image_2 = PhotoImage(file=self.relative_to_assets("button_2.png"))
+        button_2 = Button(
+            image=button_image_2,
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            background="#FFFFFF",
+            activebackground="#FFFFFF",
+            command =self.toggle_password  # Conectamos el botón al método toggle_password
+        )
+        button_2.place(
+            x=870.0,
+            y=470.0,
+            width=27.0,
+            height=27.0
+        )
+
+        self.root.resizable(False, False)
+        self.root.mainloop()
 
     def toggle_password(self):
         """Alterna la visibilidad de la contraseña."""
-        if self.var_show.get():
+        self.password_visible = not self.password_visible
+        if self.password_visible:
             self.entry_password.config(show="")
         else:
             self.entry_password.config(show="*")

@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
-    role TEXT NOT NULL CHECK(role IN ('admin', 'cliente', 'chef', 'caja', 'panel')) --cambio
+    role TEXT NOT NULL CHECK(role IN ('admin', 'mesa', 'chef', 'caja', 'panel')) --cambio
 );
 
 -- Tabla de pedidos
@@ -33,13 +33,11 @@ CREATE TABLE IF NOT EXISTS client (
   name TEXT NOR NULL,
   documents TEXT NOT NULL,
   phone TEXT NOT NULL,
-  visitas INTEGER NOT NULL,
-  fecha_incio TEXT NOT NULL,
-  fecha_fin TEXT NOT NULL,
+  visits INTEGER NOT NULL,
+  time_in TEXT NOT NULL,
+  time_out TEXT NOT NULL,
   FOREIGN KEY (mesa_id) REFERENCES mesa(id)
 );
-
-
 
 
 --Tabla de mesa
@@ -47,7 +45,6 @@ Create TABLE IF NOT EXISTS mesa (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     cantidad INTEGER NOT NULL,
     state_table INTEGER NOT NULL
-
 );
 
 --Tabla de caja

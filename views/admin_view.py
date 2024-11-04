@@ -31,8 +31,8 @@ class AdminView:
         self.label_role.grid(row=2, column=0, padx=10, pady=5)
 
         self.role_var = tk.StringVar(root)
-        self.role_var.set("cliente")
-        self.option_role = tk.OptionMenu(self.frame_create, self.role_var, "cliente", "chef", "caja", "panel")
+        self.role_var.set("mesa")
+        self.option_role = tk.OptionMenu(self.frame_create, self.role_var, "mesa", "chef", "caja", "panel")
         self.option_role.grid(row=2, column=1, padx=10, pady=5)
 
         self.button_create = tk.Button(self.frame_create, text="Crear Usuario", command=self.create_user)

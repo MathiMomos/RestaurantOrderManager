@@ -53,6 +53,21 @@ class ClienteController:
             print(f"Error al confirmar el pedido: {e}")
             return False
 
+    def get_menu_items1(self):
+        cursor = self.conn.cursor()
+        query = "SELECT category, name, price FROM menu ORDER BY category"
+        cursor.execute(query)
+        data = cursor.fetchall()
+
+        menu_items = {}
+        for category, name, price in data:
+            if category not in menu_items:
+                menu_items[category] = []
+            menu_items[category].append((name, price))
+
+        cursor.close()
+        return menu_items
+
     def close_connection(self):
         if self.conn:
             self.conn.close()

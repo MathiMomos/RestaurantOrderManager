@@ -166,7 +166,7 @@ class LoginView:
                 ChefView(root, user_id)
             elif role == 'caja':
                 CajaView(root, user_id)
-            elif role == 'cliente':
+            elif role == 'mesa':
                 ClienteView(root, user_id)
             elif role == 'panel':
                 PanelView(root, user_id)

@@ -12,75 +12,13 @@ class PanelView:
         self.user_id = user_id
         self.current_category_index = 0
 
-        self.categories = ["SOPAS", "BEBIDAS", "PLATOS PRINCIPALES", "GUARNICIONES", "POSTRES", "ENTRADAS"]
-        self.menu_data = {
-            "SOPAS": [
-                ("Sopa a la Criolla", 18),
-                ("Caldo de Gallina", 16),
-                ("Chupe de Camarones", 22),
-                ("Shambar Norteño", 20),
-                ("Sancochado", 24),
-                ("Parihuela", 25),
-                ("Sopa de Choros", 18),
-                ("Aguadito de Pollo", 15),
-                ("Chilcano de Pescado", 17),
-            ],
-            "BEBIDAS": [
-                ("Chicha Morada", 8),
-                ("Emoliente", 7),
-                ("Refresco de Maracuyá", 7),
-                ("Jugo de Naranja", 10),
-                ("Pisco Sour", 18),
-                ("Cerveza Artesanal", 12),
-                ("Agua Mineral", 5),
-                ("Limonada Clásica", 9),
-                ("Chilcano de Pisco", 16),
-            ],
-            "PLATOS PRINCIPALES": [
-                ("Lomo Saltado", 35),
-                ("Ají de Gallina", 28),
-                ("Seco de Res con Frejoles", 32),
-                ("Tacu Tacu con Lomo", 38),
-                ("Ceviche Mixto", 40),
-                ("Arroz con Pollo", 30),
-                ("Causa Limeña", 22),
-                ("Papa a la Huancaína", 18),
-                ("Carapulcra con Sopa Seca", 36),
-            ],
-            "GUARNICIONES": [
-                ("Arroz Blanco", 6),
-                ("Papas Fritas", 10),
-                ("Yuquitas Fritas", 12),
-                ("Ensalada Criolla", 10),
-                ("Tostones de Plátano", 15),
-                ("Arroz Chaufa", 18),
-                ("Choclo con Queso", 14),
-                ("Tacu Tacu", 16),
-                ("Camotes Fritos", 10),
-            ],
-            "POSTRES": [
-                ("Suspiro a la Limeña", 15),
-                ("Mazamorra Morada", 12),
-                ("Arroz con Leche", 10),
-                ("Turrón de Doña Pepa", 18),
-                ("Picarones", 20),
-                ("Crema Volteada", 14),
-                ("Alfajores", 8),
-                ("Helado de Lucuma", 16),
-                ("King Kong de Manjar Blanco", 20),
-            ],
-            "ENTRADAS": [
-                ("Papa a la Huancaína", 15),
-                ("Causa Rellena", 18),
-                ("Anticuchos con Papas", 22),
-                ("Choclo con Queso", 14),
-                ("Ocopa Arequipeña", 16),
-                ("Tamales Criollos", 12),
-                ("Choros a la Chalaca", 20),
-                ("Leche de Tigre", 18),
-                ("Papa Rellena", 15),
-            ],
-        }
+        # Obtener los datos de los platos categorizados desde la base de datos
+        self.menu_data = self.controller.get_menu_data()
+        self.categories = list(self.menu_data.keys())
+
+        # Título de categoría con texto más grande
+        self.label_category = tk.Label(root, text=self.categories[self.current_category_index],font=("Arial", 20, 'bold'))
+        self.label_category.pack(pady=20)
 
         # Título de categoría con texto más grande
         self.label_category = tk.Label(root, text=self.categories[self.current_category_index], font=("Arial", 20, 'bold'))

@@ -2,13 +2,77 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
 from controllers.cliente_controller import ClienteController
+import time
 
 class ClienteView:
 
-
     def __init__(self, root, user_id):
         self.root = root
+        self.user_id = user_id
+        self.root.title("Cliente Login ")
+        self.root.geometry("400x300")
+        self.root.configure(bg="#BFD7EA")
+        self.controller = ClienteController()  # Instance of the controller
+
+        # Font and color configurations
+        self.label_font = ("Arial", 12)
+        self.entry_font = ("Arial", 14)
+        self.button_font = ("Arial", 14)
+        self.clock_font = ("Arial", 10, "bold")
+        self.button_color = "#0B3954"
+
+        # Label and Entry for Nombre
+        self.label_name = tk.Label(self.root, text="Ingrese Nombre:", font=self.label_font, bg="#BFD7EA")
+        self.label_name.pack(pady=(40, 5))
+        self.entry_name = tk.Entry(self.root, font=self.entry_font)
+        self.entry_name.pack(pady=5)
+
+        # Label and Entry for Documento
+        self.label_document = tk.Label(self.root, text="Ingrese Documento:", font=self.label_font, bg="#BFD7EA")
+        self.label_document.pack(pady=(20, 5))
+        self.entry_document = tk.Entry(self.root, font=self.entry_font)
+        self.entry_document.pack(pady=5)
+
+        # Ingresar Button
+        self.button_login = tk.Button(self.root, text="ENTRAR", command = self.login, bg=self.button_color, fg="white",
+                                      font=self.button_font)
+        self.button_login.pack(pady=(20, 10))
+
+        # Clock display
+        self.clock_label = tk.Label(self.root, font=self.clock_font, bg="#BFD7EA", fg="black")
+        self.clock_label.pack(side=tk.BOTTOM, anchor="se", padx=10, pady=10)
+
+        # Start the clock
+        #self.update_clock()
+
+    def login(self):
+        name = self.entry_name.get()
+        document = self.entry_document.get()
+
+        # Verificar si el cliente existe en la base de datos
+        client = self.controller.find_client(name, document)
+        if client:
+            messagebox.showinfo("Información", f"Bienvenido de nuevo, {name}!")
+        else:
+            # Si el cliente no existe, crea una nueva entrada
+            self.controller.create_client(name, document)
+            messagebox.showinfo("Información", f"Cliente {name} registrado correctamente.")
+
+        # Proceder a la entrada del cliente (iniciar sesión con nombre y documento del cliente)
+        self.cliente_entry(self.root , self.user_id)
+
+    """def update_clock(self):
+        # Update the clock label with the current time
+        current_time = time.strftime("%H:%M:%S")
+        self.clock_label.config(text=current_time)
+        # Schedule the clock to update every 1000 ms (1 second)
+        self.root.after(1000, self.update_clock)"""
+
+    def cliente_entry(self, root, user_id):
+        a = tk.Tk()
+        self.root = a
         self.root.title("Cliente - Realizar Pedido")
+        self.root.geometry("1280x720")
         self.controller = ClienteController()
         self.user_id = user_id
         self.current_order = None

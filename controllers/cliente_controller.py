@@ -68,6 +68,23 @@ class ClienteController:
         cursor.close()
         return menu_items
 
+    def find_client(self, name, document):
+        """Verifies if the client exists in the database."""
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT * FROM client WHERE name = ? AND documents = ?", (name, document))
+        client = cursor.fetchone()
+        cursor.close()
+        return client
+
+    def create_client(self, name, document):  # FALTA QUE INGRESE POR PARAMETROS LA ID DE MESA
+        """Creates a new client entry in the database."""
+        cursor = self.conn.cursor()
+        cursor.execute(
+            "INSERT INTO client (mesa_id, name, documents, phone, visits, time_in, time_out) VALUES (1, ?, ?, '', 0, '', '')",  # Use a default mesa_id, e.g., 1
+            (name, document))
+        self.conn.commit()
+        cursor.close()
+
     def close_connection(self):
         if self.conn:
             self.conn.close()

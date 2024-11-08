@@ -1,12 +1,13 @@
-#perdon por la demora :v
+
+
 import tkinter as tk
 from tkinter import messagebox, ttk
 from controllers.cliente_controller import ClienteController
-import time
 
 class ClienteView:
 
     def __init__(self, root, user_id):
+        self.client_id = None
         self.root = root
         self.user_id = user_id
         self.root.title("Cliente Login ")
@@ -51,24 +52,22 @@ class ClienteView:
 
         # Verificar si el cliente existe en la base de datos
         client = self.controller.find_client(name, document)
+
         if client:
+            # Si el cliente ya existe, obtenemos su id
+            self.client_id = client[0]  # `id` como el primer campo de `client`
             messagebox.showinfo("Información", f"Bienvenido de nuevo, {name}!")
         else:
-            # Si el cliente no existe, crea una nueva entrada
-            self.controller.create_client(name, document)
+            # Si el cliente no existe, crea una nueva entrada y obtiene su id
+            self.client_id = self.controller.create_client(name, document)
             messagebox.showinfo("Información", f"Cliente {name} registrado correctamente.")
 
-        # Proceder a la entrada del cliente (iniciar sesión con nombre y documento del cliente)
-        self.cliente_entry(self.root , self.user_id)
+        # Proceder a la entrada del cliente
 
-    """def update_clock(self):
-        # Update the clock label with the current time
-        current_time = time.strftime("%H:%M:%S")
-        self.clock_label.config(text=current_time)
-        # Schedule the clock to update every 1000 ms (1 second)
-        self.root.after(1000, self.update_clock)"""
+        self.cliente_entry( self.user_id)
 
-    def cliente_entry(self, root, user_id):
+
+    def cliente_entry(self, user_id):
         a = tk.Tk()
         self.root = a
         self.root.title("Cliente - Realizar Pedido")
@@ -120,8 +119,9 @@ class ClienteView:
         for idx, (plato, precio) in enumerate(current_items):
             btn = tk.Button(self.frame_menu, text=f"{plato}\nS/ {precio:.2f}", width=18, height=3, font=("Arial", 16),
                             bg=self.button_color, fg="white",
-                            command=lambda p=plato, pr=precio: self.add_to_order(p, pr))
+                            command= lambda  p=plato, pr=precio: self.add_to_order(p, pr))
             btn.grid(row=idx // 3, column=idx % 3, padx=20, pady=15)
+
 
     def prev_category(self):
         if self.current_category > 0:
@@ -144,7 +144,8 @@ class ClienteView:
         self.create_menu_buttons()
 
     def add_to_order(self, plato, precio):
-        self.controller.add_item_to_order(self.user_id, plato, precio)
+
+        self.controller.add_item_to_order(self.user_id, self.client_id, plato, precio)
         messagebox.showinfo("Éxito", f"{plato} agregado al pedido.")
 
     def show_order(self):
@@ -167,12 +168,19 @@ class ClienteView:
         self.button_add_more.pack(side=tk.RIGHT, padx=20, pady=20)
 
     def load_current_order(self):
-        self.current_order = self.controller.get_current_order(self.user_id)
+        self.current_order = self.controller.get_current_order(self.user_id,self.client_id)
+
+        # Agrega un mensaje de depuración para ver si se obtiene el pedido
+        print(f"Pedido actual: {self.current_order}")  # Depuración
+
+        # Limpia la vista de pedidos anteriores
         for row in self.tree_order.get_children():
             self.tree_order.delete(row)
+
+        # Si hay un pedido actual, muéstralo
         if self.current_order:
             order_id, items, total = self.current_order
-            platos = items.rstrip(", ")
+            platos = items.rstrip( )
             self.tree_order.insert("", tk.END, values=(platos, f"S/ {total:.2f}"))
         else:
             self.tree_order.insert("", tk.END, values=("No hay pedido actual.", "S/ 0.00"))

@@ -11,11 +11,15 @@ CREATE TABLE IF NOT EXISTS users (
 -- Tabla de pedidos
 CREATE TABLE IF NOT EXISTS orders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
+    mesa_id INTEGER NOT NULL,
+    client_id INTEGER NOT NULL,
     items TEXT NOT NULL,
     status TEXT NOT NULL CHECK(status IN ('pendiente', 'confirmado', 'en caja', 'finalizado')),
+    time_in TEXT,
+    time_out TEXT,
     total REAL NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES client(id)
+    FOREIGN KEY (client_id) REFERENCES client(id),
+    FOREIGN KEY (mesa_id) REFERENCES mesa(id)
 );
 
 -- Tabla de menú
@@ -29,14 +33,10 @@ CREATE TABLE IF NOT EXISTS menu (
 -- Tabla de clientes
 CREATE TABLE IF NOT EXISTS client (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  mesa_id INTEGER NOT NULL,
   name TEXT NOT NULL,
   documents TEXT NOT NULL,
-  phone TEXT NOT NULL,
-  visits INTEGER NOT NULL DEFAULT 0,
-  time_in TEXT,
-  time_out TEXT,
-  FOREIGN KEY (mesa_id) REFERENCES mesa(id)
+  visits INTEGER NOT NULL DEFAULT 0
+
 );
 
 -- Tabla de mesas

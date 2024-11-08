@@ -81,19 +81,19 @@ class ChefController:
     def renumerar_menu(self):
         cursor = self.conn.cursor()
         try:
-            # Crear una tabla temporal para renumerar los ID
+            # Create a temporary table for renumbering IDs
             cursor.execute("CREATE TEMPORARY TABLE menu_temp AS SELECT * FROM menu")
 
-            # Eliminar la tabla original
+            # Delete all entries in the original table to reset IDs
             cursor.execute("DELETE FROM menu")
 
-            # Reiniciar los IDs manualmente
-            cursor.execute("""
-            INSERT INTO menu (category, name, price)
-            SELECT category, name, price FROM menu_temp
-            """)
+            # Reset the sequence to start IDs from 1
+            cursor.execute("DELETE FROM sqlite_sequence WHERE name = 'menu'")
 
-            # Eliminar la tabla temporal
+            # Insert data back from the temporary table
+            cursor.execute("INSERT INTO menu (category, name, price) SELECT category, name, price FROM menu_temp")
+
+            # Drop the temporary table
             cursor.execute("DROP TABLE menu_temp")
 
             self.conn.commit()

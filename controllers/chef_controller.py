@@ -50,63 +50,6 @@ class ChefController:
             print(f"Error al confirmar el pedido: {e}")
             return False
 
-    #añadir platos al menu
-    def anadir_plato(self , category, name, price ):
-        cursor = self.conn.cursor()
-        try:
-            cursor.execute(""" INSERT INTO menu (category, name, price) VALUES (?, ?, ?)""", (category, name, price))
-            self.conn.commit()
-            print("Plato añadido con éxito.")
-            return True
-        except Exception as e:
-            print(f"Error al leer el pedido: {e}")
-            return False
-
-    def eliminar_plato(self, id_plato):
-        cursor = self.conn.cursor()
-        try:
-            # Eliminar el plato con el ID dado
-            cursor.execute("DELETE FROM menu WHERE id = ?", (id_plato,))
-            self.conn.commit()
-            print(f"Plato con ID {id_plato} eliminado exitosamente.")
-
-            # Opcional: Renumerar los ID de los platos
-            self.renumerar_menu()
-            return True
-
-        except Exception as e:
-            print(f"Error al eliminar el plato: {e}")
-            return False
-
-    def renumerar_menu(self):
-        cursor = self.conn.cursor()
-        try:
-            # Create a temporary table for renumbering IDs
-            cursor.execute("CREATE TEMPORARY TABLE menu_temp AS SELECT * FROM menu")
-
-            # Delete all entries in the original table to reset IDs
-            cursor.execute("DELETE FROM menu")
-
-            # Reset the sequence to start IDs from 1
-            cursor.execute("DELETE FROM sqlite_sequence WHERE name = 'menu'")
-
-            # Insert data back from the temporary table
-            cursor.execute("INSERT INTO menu (category, name, price) SELECT category, name, price FROM menu_temp")
-
-            # Drop the temporary table
-            cursor.execute("DROP TABLE menu_temp")
-
-            self.conn.commit()
-            print("ID de los platos renumerados correctamente.")
-
-        except Exception as e:
-            print(f"Error al renumerar los ID: {e}")
-
-    def get_menu_items(self):
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT id, category, name, price FROM menu")
-        return cursor.fetchall()
-
     def close_connection(self):
         if self.conn:
             self.conn.close()

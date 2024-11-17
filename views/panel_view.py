@@ -1,4 +1,3 @@
-#perdon por la demora :v
 import tkinter as tk
 from tkinter import messagebox, ttk
 from controllers.panel_controller import PanelController
@@ -12,33 +11,115 @@ class PanelView:
         self.user_id = user_id
         self.current_category_index = 0
 
-        # Obtener los datos de los platos categorizados desde la base de datos
-        self.menu_data = self.controller.get_menu_data()
-        self.categories = list(self.menu_data.keys())
+        self.categories = ["SOPAS", "BEBIDAS", "PLATOS PRINCIPALES", "GUARNICIONES", "POSTRES", "ENTRADAS"]
+        self.menu_data = {
+            "SOPAS": [
+                ("Sopa a la Criolla", 18),
+                ("Caldo de Gallina", 16),
+                ("Chupe de Camarones", 22),
+                ("Shambar Norteño", 20),
+                ("Sancochado", 24),
+                ("Parihuela", 25),
+                ("Sopa de Choros", 18),
+                ("Aguadito de Pollo", 15),
+                ("Chilcano de Pescado", 17),
+            ],
+            "BEBIDAS": [
+                ("Chicha Morada", 8),
+                ("Emoliente", 7),
+                ("Refresco de Maracuyá", 7),
+                ("Jugo de Naranja", 10),
+                ("Pisco Sour", 18),
+                ("Cerveza Artesanal", 12),
+                ("Agua Mineral", 5),
+                ("Limonada Clásica", 9),
+                ("Chilcano de Pisco", 16),
+            ],
+            "PLATOS PRINCIPALES": [
+                ("Lomo Saltado", 35),
+                ("Ají de Gallina", 28),
+                ("Seco de Res con Frejoles", 32),
+                ("Tacu Tacu con Lomo", 38),
+                ("Ceviche Mixto", 40),
+                ("Arroz con Pollo", 30),
+                ("Causa Limeña", 22),
+                ("Papa a la Huancaína", 18),
+                ("Carapulcra con Sopa Seca", 36),
+            ],
+            "GUARNICIONES": [
+                ("Arroz Blanco", 6),
+                ("Papas Fritas", 10),
+                ("Yuquitas Fritas", 12),
+                ("Ensalada Criolla", 10),
+                ("Tostones de Plátano", 15),
+                ("Arroz Chaufa", 18),
+                ("Choclo con Queso", 14),
+                ("Tacu Tacu", 16),
+                ("Camotes Fritos", 10),
+            ],
+            "POSTRES": [
+                ("Suspiro a la Limeña", 15),
+                ("Mazamorra Morada", 12),
+                ("Arroz con Leche", 10),
+                ("Turrón de Doña Pepa", 18),
+                ("Picarones", 20),
+                ("Crema Volteada", 14),
+                ("Alfajores", 8),
+                ("Helado de Lucuma", 16),
+                ("King Kong de Manjar Blanco", 20),
+            ],
+            "ENTRADAS": [
+                ("Papa a la Huancaína", 15),
+                ("Causa Rellena", 18),
+                ("Anticuchos con Papas", 22),
+                ("Choclo con Queso", 14),
+                ("Ocopa Arequipeña", 16),
+                ("Tamales Criollos", 12),
+                ("Choros a la Chalaca", 20),
+                ("Leche de Tigre", 18),
+                ("Papa Rellena", 15),
+            ],
+        }
+
+        # Configuración del fondo
+        self.root.configure(bg="white")
+
+        # Canvas para flechas, creado primero para no cubrir otros elementos
+        self.canvas = tk.Canvas(self.root, bg="white", highlightthickness=0)
+        self.canvas.place(x=0, y=0, width=1200, height=600)
+
+        # Flecha izquierda
+        self.canvas.create_text(
+            50, 550,  # Coordenadas X, Y
+            text="←",
+            font=("Arial", 36, "bold"),
+            fill="black",
+            tags="prev_arrow"
+        )
+        self.canvas.tag_bind("prev_arrow", "<Button-1>", lambda event: self.show_previous_category())
+
+        # Flecha derecha
+        self.canvas.create_text(
+            1150, 550,  # Coordenadas X, Y
+            text="→",
+            font=("Arial", 36, "bold"),
+            fill="black",
+            tags="next_arrow"
+        )
+        self.canvas.tag_bind("next_arrow", "<Button-1>", lambda event: self.show_next_category())
 
         # Título de categoría con texto más grande
-        self.label_category = tk.Label(root, text=self.categories[self.current_category_index],font=("Arial", 20, 'bold'))
-        self.label_category.pack(pady=20)
-
-        # Título de categoría con texto más grande
-        self.label_category = tk.Label(root, text=self.categories[self.current_category_index], font=("Arial", 20, 'bold'))
+        self.label_category = tk.Label(self.root, text=self.categories[self.current_category_index], font=("Arial", 20, 'bold'), bg="white")
         self.label_category.pack(pady=20)
 
         # Contenedor de botones para los platos
-        self.frame_menu_buttons = tk.Frame(root)
+        self.frame_menu_buttons = tk.Frame(self.root, bg="white")
         self.frame_menu_buttons.pack(pady=10)
 
         self.load_menu_buttons()
 
-        # Botones para cambiar de categoría
-        self.button_previous = tk.Button(root, text="Anterior", command=self.show_previous_category, width=20, height=3, font=("Arial", 12))
-        self.button_previous.pack(side=tk.LEFT, padx=20, pady=10)
-
-        self.button_next = tk.Button(root, text="Siguiente", command=self.show_next_category, width=20, height=3, font=("Arial", 12))
-        self.button_next.pack(side=tk.RIGHT, padx=20, pady=10)
-
-        # Botón para ver el pedido con texto más grande
-        self.button_view_order = tk.Button(root, text="Ver Pedido", command=self.view_order, width=20, height=3, font=("Arial", 12))
+        # Botón para ver el pedido con texto más pequeño
+        self.button_view_order = tk.Button(self.root, text="Ver Pedido", command=self.view_order, width=18, height=2, font=("Arial", 12), bg="#3b1d14", fg="white", highlightbackground="#3b1d14", highlightthickness=2, relief="solid")
         self.button_view_order.pack(pady=20)
 
     def load_menu_buttons(self):
@@ -57,7 +138,7 @@ class PanelView:
             col = index % 3  # Columna de la cuadrícula (0, 1 o 2)
 
             button = tk.Button(self.frame_menu_buttons, text=f"{item[0]}\nS/ {item[1]:.2f}",
-                               command=lambda i=item: self.add_to_order(i), width=25, height=5, font=("Arial", 12))
+                               command=lambda i=item: self.add_to_order(i), width=25, height=5, font=("Arial", 12), bg="white", fg="#3b1d14", highlightbackground="#3b1d14", highlightthickness=2, relief="solid")
             button.grid(row=row, column=col, padx=10, pady=10)
 
     def show_previous_category(self):
@@ -101,12 +182,11 @@ class PanelView:
             tree_order.insert("", tk.END, values=("No hay pedidos actuales.", "S/ 0.00"))
 
         # Botón para confirmar el pedido
-        button_confirm = tk.Button(order_window, text="Confirmar Pedido",
-                                   command=lambda: self.confirm_order(order_window), width=20, height=2, font=("Arial", 12))
+        button_confirm = tk.Button(order_window, text="Confirmar Pedido", command=lambda: self.confirm_order(order_window), width=18, height=2, font=("Arial", 12), bg="#3b1d14", fg="white", highlightbackground="#3b1d14", highlightthickness=2, relief="solid")
         button_confirm.pack(side=tk.LEFT, padx=10, pady=10)
 
         # Botón para agregar más platos
-        button_add_more = tk.Button(order_window, text="Agregar Platos", command=order_window.destroy, width=20, height=2, font=("Arial", 12))
+        button_add_more = tk.Button(order_window, text="Agregar Platos", command=order_window.destroy, width=18, height=2, font=("Arial", 12), bg="#3b1d14", fg="white", highlightbackground="#3b1d14", highlightthickness=2, relief="solid")
         button_add_more.pack(side=tk.RIGHT, padx=10, pady=10)
 
     def confirm_order(self, window):

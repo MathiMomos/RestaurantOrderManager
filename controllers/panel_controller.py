@@ -59,21 +59,6 @@ class PanelController:
             print(f"Error al confirmar el pedido: {e}")
             return False
 
-    def get_menu_data(self):
-        cursor = self.conn.cursor()
-        query = "SELECT category, name, price FROM menu ORDER BY category"
-        cursor.execute(query)
-        data = cursor.fetchall()
-
-        menu_data = {}
-        for category, name, price in data:
-            if category not in menu_data:
-                menu_data[category] = []
-            menu_data[category].append((name, price))
-
-        cursor.close()
-        return menu_data
-
     def close_connection(self):
         """Cierra la conexión a la base de datos."""
         if self.conn:

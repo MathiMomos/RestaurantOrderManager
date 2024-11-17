@@ -1,6 +1,5 @@
 import tkinter as tk
-from tkinter import Canvas, PhotoImage, Entry, Button, messagebox
-from pathlib import Path
+from tkinter import PhotoImage, messagebox
 from controllers.login_controller import LoginController
 from views.admin_view import AdminView
 from views.chef_view import ChefView
@@ -9,169 +8,137 @@ from views.cliente_view import ClienteView
 from views.panel_view import PanelView
 
 class LoginView:
-    OUTPUT_PATH = Path(__file__).parent
-    ASSETS_PATH = OUTPUT_PATH / "pictureLogin"
-
-    def relative_to_assets(self, path: str) -> Path:
-        return self.ASSETS_PATH / Path(path)
-
     def __init__(self, root):
         self.root = root
         self.root.title("Login - Restaurant Order Manager")
-        self.root.geometry("1280x720")
-        self.root.configure(bg="#FFFFFF")
+        self.root.geometry("1200x600")
+        self.root.configure(bg="#F5F5F5")
         self.controller = LoginController()
 
-        # Crear el lienzo (canvas)
-        canvas = Canvas(
-            self.root,
-            bg="#FFFFFF",
-            height=720,
-            width=1280,
-            bd=0,
-            highlightthickness=0,
-            relief="ridge"
+        # Cargar la imagen de título
+        self.titulo_image = PhotoImage(file="recursos/titulo.png")  # Ruta relativa a la carpeta recursos
+
+        # Crear un marco centrado (Movido hacia abajo ajustando `rely`)
+        self.frame = tk.Frame(self.root, bg="white", bd=2, relief="solid", highlightbackground="#efeeeb", highlightcolor="#efeeeb")
+        self.frame.place(relx=0.5, rely=0.7, anchor='center', width=700, height=300)  # `rely=0.7` para mover hacia abajo
+
+        # Crear una etiqueta para mostrar la imagen en la parte superior
+        self.label_titulo = tk.Label(self.root, image=self.titulo_image, bg="#F5F5F5")
+        self.label_titulo.place(relx=0.5, rely=0.25, anchor='center')  # Coloca la imagen en la parte superior centralizada
+
+        # Etiqueta "Nombre de usuario" (Más negrita)
+        self.label_username = tk.Label(
+            self.frame, text="Nombre de usuario", font=("Helvetica", 12, "bold"), bg="white", fg="#333"
         )
+        self.label_username.place(relx=0.5, rely=0.2, anchor='center')
 
-        canvas.place(x=0, y=0)
-
-        # Cargar imágenes
-        self.image_image_1 = PhotoImage(file=self.relative_to_assets("image_1.png"))
-        canvas.create_image(639.0, 188.0, image=self.image_image_1)
-
-        self.image_image_2 = PhotoImage(file=self.relative_to_assets("image_2.png"))
-        canvas.create_image(639.0, 450.0, image=self.image_image_2)
-
-        entry_image_1 = PhotoImage(file=self.relative_to_assets("entry_1.png"))
-        canvas.create_image(639.5, 373.5, image=entry_image_1)
-
-        # Entradas de usuario
-        self.entry_username = Entry(
-            bd=0,
-            bg="#FFFFFF",
-            fg="#000716",
-            highlightthickness=0,
-            font=("Inter", 14)
+        # Entrada de usuario (Texto de marcador más transparente)
+        self.entry_username = tk.Entry(
+            self.frame, font=("Helvetica", 14), relief="solid", bd=1, justify="center", fg="#333", bg="white",
+            highlightbackground="#efeeeb", highlightthickness=1
         )
-        self.entry_username.place(
-            x=371.0,
-            y=351.0,
-            width=537.0,
-            height=45.0
+        self.entry_username.insert(0, "Ingrese su usuario")
+        self.entry_username.config(fg="#AAA")  # Color gris claro para transparencia
+        self.entry_username.bind("<FocusIn>", self.clear_username)
+        self.entry_username.bind("<FocusOut>", self.restore_username)
+        self.entry_username.place(relx=0.5, rely=0.3, anchor='center', width=500, height=35)
+
+        # Etiqueta "Contraseña" (Más negrita)
+        self.label_password = tk.Label(
+            self.frame, text="Contraseña", font=("Helvetica", 12, "bold"), bg="white", fg="#333"
         )
+        self.label_password.place(relx=0.5, rely=0.45, anchor='center')
 
-        canvas.create_text(
-            359.0,
-            312.0,
-            anchor="nw",
-            text="Nombre de usuario",
-            fill="#34160E",
-            font=("Inter", 20 * -1)
+        # Marco para la entrada de contraseña e ícono
+        self.password_frame = tk.Frame(self.frame, bg="white", relief="solid", bd=1, highlightbackground="#efeeeb", highlightthickness=1)
+        self.password_frame.place(relx=0.5, rely=0.55, anchor='center', width=500, height=35)
+
+        # Placeholder y entrada de contraseña (Texto de marcador más transparente)
+        self.entry_password = tk.Entry(
+            self.password_frame, font=("Helvetica", 14), relief="flat", bd=0, justify="center", fg="#AAA", bg="white"
         )
+        self.entry_password.insert(0, "Ingrese su contraseña")
+        self.entry_password.bind("<FocusIn>", self.clear_password)
+        self.entry_password.bind("<FocusOut>", self.restore_password)
+        self.entry_password.pack(side="left", fill="both", expand=True, padx=(10, 0))
 
-        entry_image_2 = PhotoImage(file=self.relative_to_assets("entry_2.png"))
-        canvas.create_image(639.5, 483.5, image=entry_image_2)
-
-        self.entry_password = Entry(
-            bd=0,
-            bg="#FFFFFF",
-            fg="#000716",
-            highlightthickness=0,
-            font=("Inter", 14),
-            show="*"
+        # Botón para mostrar/ocultar contraseña
+        self.show_password_icon = tk.Label(
+            self.password_frame, text="👁", cursor="hand2", bg="white", fg="#888"
         )
+        self.show_password_icon.pack(side="right", padx=(0, 10))
+        self.show_password_icon.bind("<Button-1>", self.toggle_password)
 
-        self.password_visible = False  # Cambiamos la variable a un atributo de instancia
-
-        self.entry_password.place(
-            x=371.0,
-            y=461.0,
-            width=495.0,
-            height=45.0
+        # Botón estilizado para iniciar sesión
+        self.button_login = tk.Button(
+            self.frame, text="Iniciar Sesión", command=self.login, bg="#3c1d15", fg="white",
+            font=("Helvetica", 12, "bold"), relief="solid", bd=1, cursor="hand2"
         )
+        self.button_login.place(relx=0.5, rely=0.8, anchor='center', width=200, height=40)
 
-        canvas.create_text(
-            361.0,
-            422.0,
-            anchor="nw",
-            text="Contraseña",
-            fill="#34160E",
-            font=("Inter", 20 * -1)
-        )
+        self.password_shown = False
 
-        # Botón de Login
-        button_image_1 = PhotoImage(file=self.relative_to_assets("button_1.png"))
-        button_1 = Button(
-            image=button_image_1,
-            borderwidth=0,
-            highlightthickness=0,
-            command=self.login,  # Conectamos el botón al método login
-            relief="flat",
-            background="#FFFFFF",
-            activebackground="#FFFFFF"
-        )
-        button_1.place(
-            x=359.0,
-            y=532.0,
-            width=562.0,
-            height=49.0
-        )
+    def clear_username(self, event):
+        if self.entry_username.get() == "Ingrese su usuario":
+            self.entry_username.delete(0, tk.END)
+            self.entry_username.config(fg="#333")  # Cambia el color a gris oscuro al escribir
 
-        # Botón para alternar la visibilidad de la contraseña
-        button_image_2 = PhotoImage(file=self.relative_to_assets("button_2.png"))
-        button_2 = Button(
-            image=button_image_2,
-            borderwidth=0,
-            highlightthickness=0,
-            relief="flat",
-            background="#FFFFFF",
-            activebackground="#FFFFFF",
-            command =self.toggle_password  # Conectamos el botón al método toggle_password
-        )
-        button_2.place(
-            x=870.0,
-            y=470.0,
-            width=27.0,
-            height=27.0
-        )
+    def restore_username(self, event):
+        if not self.entry_username.get():
+            self.entry_username.insert(0, "Ingrese su usuario")
+            self.entry_username.config(fg="#AAA")  # Restaura el color transparente
 
-        self.root.resizable(False, False)
-        self.root.mainloop()
+    def clear_password(self, event):
+        if self.entry_password.get() == "Ingrese su contraseña":
+            self.entry_password.delete(0, tk.END)
+            self.entry_password.config(show="*", fg="#333")  # Cambia el color al escribir
 
-    def toggle_password(self):
-        """Alterna la visibilidad de la contraseña."""
-        self.password_visible = not self.password_visible
-        if self.password_visible:
-            self.entry_password.config(show="")
-        else:
+    def restore_password(self, event):
+        if not self.entry_password.get():
+            self.entry_password.insert(0, "Ingrese su contraseña")
+            self.entry_password.config(show="", fg="#AAA")  # Restaura el color transparente
+
+    def toggle_password(self, event):
+        if self.password_shown:
             self.entry_password.config(show="*")
+            self.show_password_icon.config(text="👁")
+        else:
+            self.entry_password.config(show="")
+            self.show_password_icon.config(text="🙈")
+        self.password_shown = not self.password_shown
 
     def login(self):
-        """Maneja el proceso de login delegando la lógica al controlador."""
         username = self.entry_username.get().strip()
         password = self.entry_password.get().strip()
+
+        if username in ("", "Ingrese su usuario") or password in ("", "Ingrese su contraseña"):
+            messagebox.showwarning("Advertencia", "Por favor, completa todos los campos.")
+            return
 
         result = self.controller.validate_user(username, password)
 
         if result['status'] == 'success':
             user_id = result['user_id']
             role = result['role']
-            messagebox.showinfo("Éxito", f"Bienvenido, {username}!")
             self.root.destroy()
-            root = tk.Tk()
-            root.geometry("1200x600")
-            if role == 'admin':
-                AdminView(root, user_id)
-            elif role == 'chef':
-                ChefView(root, user_id)
-            elif role == 'caja':
-                CajaView(root, user_id)
-            elif role == 'mesa':
-                ClienteView(root, user_id)
-            elif role == 'panel':
-                PanelView(root, user_id)
-            else:
-                messagebox.showerror("Error", "Rol no implementado aún.")
-            root.mainloop()
-        elif result['status'] == 'error':
+            self.open_role_view(role, user_id)
+        else:
             messagebox.showerror("Error", result['message'])
+
+    def open_role_view(self, role, user_id):
+        root = tk.Tk()
+        root.geometry("1200x600")
+
+        if role == 'admin':
+            AdminView(root, user_id)
+        elif role == 'chef':
+            ChefView(root, user_id)
+        elif role == 'caja':
+            CajaView(root, user_id)
+        elif role == 'cliente':
+            ClienteView(root, user_id)
+        elif role == 'panel':
+            PanelView(root, user_id)
+        else:
+            messagebox.showerror("Error", "Rol no implementado.")
+        root.mainloop()

@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS orders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     items TEXT NOT NULL,
+    item_prices REAL NOT NULL,
+    item_amounts INTEGER NOT NULL,
     status TEXT NOT NULL CHECK(status IN ('pendiente', 'confirmado', 'en caja', 'finalizado')),
     total REAL NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id)

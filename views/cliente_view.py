@@ -6,7 +6,7 @@ class ClienteView:
     def __init__(self, root, user_id):
         self.root = root
         self.root.title("Cliente - Realizar Pedido")
-        self.root.geometry("1200x600")  # Tamaño fijo de la ventana
+        self.root.geometry("1280x720")  # Tamaño fijo de la ventana
         self.controller = ClienteController()
         self.user_id = user_id
         self.current_order = None
@@ -42,47 +42,30 @@ class ClienteView:
 
     def setup_ui(self):
         # Frame izquierdo (vacío)
-        self.left_frame = tk.Frame(self.root, bg="lightgray", width=400)  # Cambia el color y el tamaño según sea necesario
+        self.left_frame = tk.Frame(self.root, bg="lightgray", width=310)
         self.left_frame.pack(side=tk.LEFT, fill=tk.Y)
 
         # Frame derecho (contiene la funcionalidad)
         self.right_frame = tk.Frame(self.root, bg="white")
         self.right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
-        # Configuración del canvas y otros elementos en el marco derecho
-        self.canvas = tk.Canvas(self.right_frame, bg="white", highlightthickness=0)
-        self.canvas.place(x=0, y=0, width=800, height=600)
+        # Botones de categorías en la parte superior del frame derecho
+        self.category_buttons_frame = tk.Frame(self.right_frame, bg="white")
+        self.category_buttons_frame.pack(pady=10)
 
-        # Flecha izquierda
-        self.canvas.create_text(
-            50, 550,  # Coordenadas X, Y
-            text="←",
-            font=("Arial", 36, "bold"),
-            fill="black",
-            tags="prev_arrow"
-        )
-        self.canvas.tag_bind("prev_arrow", "<Button-1>", lambda event: self.prev_category())
-
-        # Flecha derecha
-        self.canvas.create_text(
-            750, 550,  # Coordenadas X, Y
-            text="→",
-            font=("Arial", 36, "bold"),
-            fill="black",
-            tags="next_arrow"
-        )
-        self.canvas.tag_bind("next_arrow", "<Button-1>", lambda event: self.next_category())
-
-        # Botón para ver pedido
-        self.button_order = tk.Button(
-            self.right_frame,
-            text="Ver Pedido",
-            command=self.show_order,
-            bg="#3b1d14",
-            fg="white",
-            font=("Arial", 14)
-        )
-        self.button_order.place(x=300, y=530, width=100, height=40)
+        for category in self.categories:
+            btn = tk.Button(
+                self.category_buttons_frame,
+                text=category,
+                font=("Arial", 10, "bold"),
+                bg="#3b1d14",  # Fondo colorido
+                fg="white",  # Texto blanco
+                height=2,
+                width=17,
+                relief="solid",
+                command=lambda c=category: self.change_category(c)  # Cambiar categoría al hacer clic
+            )
+            btn.pack(side=tk.LEFT, padx=1)
 
         # Categoría de los platos
         self.label_category = tk.Label(
@@ -99,6 +82,20 @@ class ClienteView:
 
         self.create_menu_buttons()
 
+        # Cargar el pedido actual automáticamente al iniciar
+        self.show_order()  # Agrega esta línea
+
+    def change_category(self, category):
+        # Cambiar la categoría actual cuando se hace clic en una de ellas
+        if category in self.categories:
+            self.current_category = self.categories.index(category)
+            self.update_category()
+
+    def update_category(self):
+        # Actualizar la categoría y mostrar los platos correspondientes
+        self.label_category.config(text=self.categories[self.current_category])
+        self.create_menu_buttons()
+
     def create_menu_buttons(self):
         # Limpiar el frame para evitar superposición de botones
         for widget in self.frame_menu.winfo_children():
@@ -111,9 +108,9 @@ class ClienteView:
             btn = tk.Button(
                 self.frame_menu,
                 text=f"{plato}\nS/ {precio:.2f}",
-                width=18,
-                height=3,
-                font=("Arial", 16),
+                width=20,
+                height=4,
+                font=("Arial", 18),
                 bg="white",
                 fg="#3b1d14",
                 highlightbackground="#3b1d14",
@@ -134,76 +131,98 @@ class ClienteView:
         self.frame_menu.grid_columnconfigure(1, weight=1)
         self.frame_menu.grid_columnconfigure(2, weight=1)
 
-    def prev_category(self):
-        if self.current_category > 0:
-            self.current_category -= 1
-        else:
-            self.current_category = len(self.categories) - 1
-        self.update_category()
+    def add_to_order(self, plato, precio, cantidad=1):
+        # Llamada al metodo de agregar ítem al pedido
+        self.controller.add_item_to_order(self.user_id, plato, precio, cantidad)
+        self.load_current_order()
 
-    def next_category(self):
-        if self.current_category < len(self.categories) - 1:
-            self.current_category += 1
-        else:
-            self.current_category = 0
-        self.update_category()
+    def remove_selected_item(self):
+        selected_item = self.tree_order.selection()
+        if not selected_item:
+            messagebox.showwarning("Advertencia", "Por favor, selecciona un plato de la orden para eliminar.")
+            return
 
-    def update_category(self):
-        self.label_category.config(text=self.categories[self.current_category])
-        self.create_menu_buttons()
+        # Guardar la selección antes de realizar la eliminación
+        selected_item_values = self.tree_order.item(selected_item, "values")
 
-    def add_to_order(self, plato, precio):
-        self.controller.add_item_to_order(self.user_id, plato, precio)
-        messagebox.showinfo("Éxito", f"{plato} agregado al pedido.")
+        # Obtener el plato seleccionado
+        plato_seleccionado = selected_item_values[0]  # Nombre del plato
+
+        # Llamar al metodo para eliminar el plato o decrementar la cantidad
+        self.controller.remove_item_from_order(self.user_id, plato_seleccionado)
+
+        # Recargar la orden actual después de la eliminación
+        self.load_current_order()
+
+        # Volver a seleccionar el plato que fue seleccionado previamente
+        for item in self.tree_order.get_children():
+            if self.tree_order.item(item, "values")[0] == plato_seleccionado:
+                self.tree_order.selection_set(item)
+                break
 
     def show_order(self):
-        self.order_window = tk.Toplevel(self.root)
-        self.order_window.title("Pedido Actual")
-        self.order_window.configure(bg="white")
+        for widget in self.left_frame.winfo_children():
+            widget.destroy()
 
-        self.tree_order = ttk.Treeview(self.order_window, columns=("Platos", "Total"), show='headings')
+        # Crear un estilo para el Treeview
+        style = ttk.Style()
+        style.configure("Custom.Treeview", font=("Arial", 12))  # Cambiar el tamaño de la fuente para las celdas
+        style.configure("Custom.Treeview.Heading",
+                        font=("Arial", 13, "bold"))  # Cambiar el tamaño de la fuente para las cabeceras
+
+        # Crear el Treeview con el estilo personalizado
+        self.tree_order = ttk.Treeview(self.left_frame, columns=("Platos", "Precio", "Cantidad"), show='headings',
+                                       style="Custom.Treeview")
         self.tree_order.heading("Platos", text="Platos")
-        self.tree_order.heading("Total", text="Total")
-        self.tree_order.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+        self.tree_order.heading("Precio", text="Prec/Uni")
+        self.tree_order.heading("Cantidad", text="Cantidad")
 
+        self.tree_order.column("Platos", width=200)  # Ancho de la columna Platos
+        self.tree_order.column("Precio", width=80, anchor='center')  # Ancho de la columna Precio
+        self.tree_order.column("Cantidad", width=80, anchor='center')  # Ancho de la columna Cantidad
+
+        self.tree_order.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
         self.load_current_order()
 
         self.button_confirm = tk.Button(
-            self.order_window,
+            self.left_frame,
             text="Confirmar Pedido",
             command=self.confirm_order,
             bg="#3b1d14",
             fg="white",
-            font=("Arial",  14)
+            font=("Arial", 14)
         )
         self.button_confirm.pack(side=tk.LEFT, padx=20, pady=20)
 
-        self.button_add_more = tk.Button(
-            self.order_window,
-            text="Agregar Platos",
-            command=self.order_window.destroy,
+        # Botón para eliminar el plato seleccionado
+        self.button_remove = tk.Button(
+            self.left_frame,
+            text="Eliminar Plato",
+            command=self.remove_selected_item,
             bg="#3b1d14",
             fg="white",
             font=("Arial", 14)
         )
-        self.button_add_more.pack(side=tk.RIGHT, padx=20, pady=20)
+        self.button_remove.pack(side=tk.LEFT, padx=20, pady=20)
 
     def load_current_order(self):
         self.current_order = self.controller.get_current_order(self.user_id)
         for row in self.tree_order.get_children():
             self.tree_order.delete(row)
         if self.current_order:
-            order_id, items, total = self.current_order
+            order_id, items, item_prices, item_amounts, total = self.current_order
             platos_lista = [plato.strip() for plato in items.split(',')]
-            for plato in platos_lista:
-                self.tree_order.insert("", tk.END, values=(plato, ""))
+            precios_lista = [float(precio.strip()) for precio in item_prices.split(',') if precio.strip()]
+            cantidades_lista = [int(cantidad.strip()) for cantidad in item_amounts.split(',') if cantidad.strip()]
+            for plato, precio, cantidad in zip(platos_lista, precios_lista, cantidades_lista):
+                self.tree_order.insert("", tk.END, values=(plato, f"S/ {precio:.2f}", f"{cantidad}"))
             self.tree_order.insert("", tk.END, values=("Total", f"S/ {total:.2f}"))
         else:
             self.tree_order.insert("", tk.END, values=("No hay pedido actual.", "S/ 0.00"))
 
     def confirm_order(self):
         if self.current_order:
-            order_id, items, total = self.current_order
+            order_id, items, item_prices, item_amounts, total = self.current_order
             confirm = messagebox.askyesno("Confirmar Pedido", f"¿Deseas confirmar tu pedido ID {order_id}?")
             if confirm:
                 success = self.controller.confirm_order(order_id)

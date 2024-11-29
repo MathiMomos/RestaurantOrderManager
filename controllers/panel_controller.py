@@ -16,32 +16,35 @@ class PanelController:
         """Obtiene el pedido actual del usuario si está en estado 'pendiente'."""
         cursor = self.conn.cursor()
         cursor.execute("""
-            SELECT id, items, total FROM orders
+            SELECT id, items, item_prices, item_amounts, total FROM orders
             WHERE user_id = ? AND status = 'pendiente'
         """, (user_id,))
         return cursor.fetchone()
 
-    def add_item_to_order(self, user_id, item_name, item_price):
+    def add_item_to_order(self, user_id, item_name, item_price, item_amount):
         """Agrega un plato al pedido del usuario."""
         cursor = self.conn.cursor()
         order = self.get_user_order(user_id)
         if order:
-            order_id, items, total = order
+            order_id, items, prices, amounts, total = order
             new_items = items + f"{item_name}, "
-            new_total = total + item_price
+            new_prices = prices + f"{item_price}, "
+            new_amounts = amounts + f"{item_amount}, "
+            new_total = total + (item_price * item_amount)
             cursor.execute("""
                 UPDATE orders
-                SET items = ?, total = ?
+                SET items = ?, item_prices = ?, item_amounts = ?, total = ?
                 WHERE id = ?
-            """, (new_items, new_total, order_id))
+            """, (new_items, new_prices, new_amounts, new_total, order_id))
         else:
-            # Crear un nuevo pedido con estado 'pendiente'
             new_items = f"{item_name}, "
-            new_total = item_price
+            new_prices = f"{item_price}, "
+            new_amounts = f"{item_amount}, "
+            new_total = item_price * item_amount
             cursor.execute("""
-                INSERT INTO orders (user_id, items, status, total)
-                VALUES (?, ?, 'pendiente', ?)
-            """, (user_id, new_items, new_total))
+                INSERT INTO orders (user_id, items, item_prices, item_amounts, status, total)
+                VALUES (?, ?, ?, ?, 'pendiente', ?)
+            """, (user_id, new_items, new_prices, new_amounts, new_total))
         self.conn.commit()
 
     def confirm_order(self, order_id):

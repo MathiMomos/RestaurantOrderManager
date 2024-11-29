@@ -41,9 +41,17 @@ class ClienteView:
         self.setup_ui()
 
     def setup_ui(self):
-        # Canvas para flechas, creado primero para no cubrir otros elementos
-        self.canvas = tk.Canvas(self.root, bg="white", highlightthickness=0)
-        self.canvas.place(x=0, y=0, width=1200, height=600)
+        # Frame izquierdo (vacío)
+        self.left_frame = tk.Frame(self.root, bg="lightgray", width=400)  # Cambia el color y el tamaño según sea necesario
+        self.left_frame.pack(side=tk.LEFT, fill=tk.Y)
+
+        # Frame derecho (contiene la funcionalidad)
+        self.right_frame = tk.Frame(self.root, bg="white")
+        self.right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+
+        # Configuración del canvas y otros elementos en el marco derecho
+        self.canvas = tk.Canvas(self.right_frame, bg="white", highlightthickness=0)
+        self.canvas.place(x=0, y=0, width=800, height=600)
 
         # Flecha izquierda
         self.canvas.create_text(
@@ -57,7 +65,7 @@ class ClienteView:
 
         # Flecha derecha
         self.canvas.create_text(
-            1150, 550,  # Coordenadas X, Y
+            750, 550,  # Coordenadas X, Y
             text="→",
             font=("Arial", 36, "bold"),
             fill="black",
@@ -67,18 +75,18 @@ class ClienteView:
 
         # Botón para ver pedido
         self.button_order = tk.Button(
-            self.root,
+            self.right_frame,
             text="Ver Pedido",
             command=self.show_order,
             bg="#3b1d14",
             fg="white",
             font=("Arial", 14)
         )
-        self.button_order.place(x=550, y=530, width=100, height=40)
+        self.button_order.place(x=300, y=530, width=100, height=40)
 
         # Categoría de los platos
         self.label_category = tk.Label(
-            self.root,
+            self.right_frame,
             text=self.categories[self.current_category],
             font=("Arial", 24, "bold"),
             bg="white"
@@ -86,7 +94,7 @@ class ClienteView:
         self.label_category.pack(pady=(20, 10))
 
         # Frame para los botones de los platos
-        self.frame_menu = tk.Frame(self.root, bg="white")
+        self.frame_menu = tk.Frame(self.right_frame, bg="white")
         self.frame_menu.pack(pady=(20, 30))
 
         self.create_menu_buttons()
@@ -166,7 +174,7 @@ class ClienteView:
             command=self.confirm_order,
             bg="#3b1d14",
             fg="white",
-            font=("Arial", 14)
+            font=("Arial",  14)
         )
         self.button_confirm.pack(side=tk.LEFT, padx=20, pady=20)
 
@@ -186,8 +194,10 @@ class ClienteView:
             self.tree_order.delete(row)
         if self.current_order:
             order_id, items, total = self.current_order
-            platos = items.rstrip(", ")
-            self.tree_order.insert("", tk.END, values=(platos, f"S/ {total:.2f}"))
+            platos_lista = [plato.strip() for plato in items.split(',')]
+            for plato in platos_lista:
+                self.tree_order.insert("", tk.END, values=(plato, ""))
+            self.tree_order.insert("", tk.END, values=("Total", f"S/ {total:.2f}"))
         else:
             self.tree_order.insert("", tk.END, values=("No hay pedido actual.", "S/ 0.00"))
 

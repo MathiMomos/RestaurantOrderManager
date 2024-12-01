@@ -136,9 +136,16 @@ class LoginView:
         elif role == 'caja':
             CajaView(root, user_id)
         elif role == 'cliente':
-            ClienteView(root, user_id)
+            # Crear una instancia del controlador del cliente
+            from controllers.cliente_controller import ClienteController
+            cliente_controller = ClienteController()
+
+            # Mostrar la vista para el cliente
+            from views.cliente_view import ClienteView
+            cliente_view = ClienteView(root, cliente_controller)  # Pasamos el controlador
         elif role == 'panel':
             PanelView(root, user_id)
         else:
             messagebox.showerror("Error", "Rol no implementado.")
         root.mainloop()
+

@@ -40,6 +40,7 @@ class ClienteView:
 
         self.setup_ui()
 
+
     def setup_ui(self):
         # Frame izquierdo (vacío)
         self.left_frame = tk.Frame(self.root, bg="lightgray", width=310)

@@ -51,7 +51,9 @@ class CajaView:
             self.tree.delete(row)
         orders = self.controller.get_en_caja_orders()
         for order in orders:
-            self.tree.insert("", tk.END, values=order)
+            # Asegurarse de que los platos estén formateados correctamente, con saltos de línea entre cada uno
+            formatted_platos = "\n".join(order[2].split(","))
+            self.tree.insert("", tk.END, values=(order[0], order[1], formatted_platos, order[3], order[4]))
 
     def generate_selected_bill(self):
         """Generar la boleta para el pedido seleccionado"""

@@ -1,6 +1,7 @@
 # controllers/cliente_controller.py .
 from data.database import create_connection
 
+
 class ClienteController:
     def __init__(self):
         self.conn = create_connection('data/restaurant.db')

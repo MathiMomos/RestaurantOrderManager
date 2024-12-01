@@ -43,7 +43,12 @@ class ChefView:
             self.tree.delete(row)
         orders = self.controller.get_confirmed_orders()
         for order in orders:
-            self.tree.insert("", tk.END, values=order)
+            # Formatear los platos en líneas separadas
+            platos = order[2]  # Suponiendo que los platos están en la tercera posición (índice 2)
+            platos_formateados = "\n".join([plato.strip() for plato in platos.split(',') if plato.strip()])
+
+            # Actualizar el pedido con los platos formateados
+            self.tree.insert("", tk.END, values=(order[0], order[1], platos_formateados, order[3], order[4]))
 
     def confirm_selected_order(self):
         """Confirmar el pedido seleccionado"""

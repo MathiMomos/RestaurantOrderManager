@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
 from controllers.cliente_controller import ClienteController
+from PIL import Image, ImageTk
 
 class ClienteView:
 
@@ -8,37 +9,84 @@ class ClienteView:
         self.root = root
         self.root.title("Cliente - Realizar Pedido")
         self.controller = ClienteController()
-        self.user_id = user_id # Aquí deberías recibir un string como "mesa1"
+        self.user_id = user_id  # Aquí deberías recibir un string como "mesa1"
         self.client_id = 0
         self.mesa_id = 0
         self.current_order = None
         self.current_category = 0
 
-        # Centrar la ventana
-        screen_width = self.root.winfo_screenwidth()
-        screen_height = self.root.winfo_screenheight()
+        # Configuración de la ventana
+        self.root.geometry("1200x600")  # Resolución fija de 1200x600
+        self.root.resizable(False, False)  # Deshabilitar cambio de tamaño
+        self.root.configure(bg="white")  # Fondo fuera del marco blanco
 
+        # Crear un marco para los campos de entrada (20% más pequeño respecto al anterior)
+        frame_width = 512  # 640 - 20%
+        frame_height = 256  # 320 - 20%
+        self.frame = tk.Frame(
+            self.root,
+            bg="#fafafa",  # Fondo más claro dentro del marco
+            highlightbackground="#3b1d14",
+            highlightthickness=2
+        )
+        self.frame.place(relx=0.5, rely=0.5, anchor="center", width=frame_width,
+                         height=frame_height)  # Tamaño reducido y centrado
 
-        # Crear los widgets
-        self.name = tk.Label(self.root, text="Nombre:")
-        self.name.pack(pady=10)
+        # Etiqueta y entrada para el nombre
+        self.name_label = tk.Label(self.frame, text="NOMBRE", font=("Arial", 12, "bold"), bg="#fafafa")
+        self.name_label.place(relx=0.5, rely=0.2, anchor="center")  # Etiqueta centrada dentro del marco
+        self.name_entry = tk.Entry(self.frame, width=30, font=("Arial", 12))
+        self.name_entry.place(relx=0.5, rely=0.35, anchor="center")  # Entrada centrada justo debajo de la etiqueta
 
-        self.name_entry = tk.Entry(self.root, width=30)
-        self.name_entry.pack(pady=5)
+        # Etiqueta y entrada para el documento
+        self.document_label = tk.Label(self.frame, text="DOCUMENTO", font=("Arial", 12, "bold"), bg="#fafafa")
+        self.document_label.place(relx=0.5, rely=0.5, anchor="center")  # Etiqueta centrada dentro del marco
+        self.document_entry = tk.Entry(self.frame, width=30, font=("Arial", 12))
+        self.document_entry.place(relx=0.5, rely=0.65, anchor="center")  # Entrada centrada justo debajo de la etiqueta
 
-        self.document= tk.Label(self.root, text="Documento:")
-        self.document.pack(pady=10)
+        # Botón de envío dentro del marco
+        self.submit_button = tk.Button(
+            self.frame,
+            text="INGRESAR",
+            command=self.submit_person,
+            font=("Arial", 12, "bold"),
+            bg="#3b1d14",
+            fg="white",
+            activebackground="#5e2d20",
+            activeforeground="white",
+            padx=10,
+            pady=5
+        )
+        self.submit_button.place(relx=0.5, rely=0.85, anchor="center")  # Botón centrado en la parte inferior del marco
 
-        self.document_entry = tk.Entry(self.root, width=30)
-        self.document_entry.pack(pady=5)
+        # Cargar y colocar las imágenes
+        self.add_images()
 
-        self.submit_button = tk.Button(self.root, text="INGRESAR", command=self.submit_person)
-        self.submit_button.pack(pady=20)
+    def add_images(self):
+        try:
+            # Cargar imágenes
+            participa_img = Image.open("recursos/participa.png")
+            participa_img = participa_img.resize((200, 200),
+                                                 Image.Resampling.LANCZOS)  # Redimensionar con el método moderno
+            self.participa_photo = ImageTk.PhotoImage(participa_img)
+
+            cupones_img = Image.open("recursos/cupones.png")
+            cupones_img = cupones_img.resize((200, 200),
+                                             Image.Resampling.LANCZOS)  # Redimensionar con el método moderno
+            self.cupones_photo = ImageTk.PhotoImage(cupones_img)
+
+            # Crear widgets para las imágenes con ajustes en `relx`
+            self.participa_label = tk.Label(self.root, image=self.participa_photo, bg="white")
+            self.participa_label.place(relx=0.15, rely=0.5, anchor="center")  # Más a la izquierda
+
+            self.cupones_label = tk.Label(self.root, image=self.cupones_photo, bg="white")
+            self.cupones_label.place(relx=0.85, rely=0.5, anchor="center")  # Más a la derecha
+        except Exception as e:
+            print(f"Error al cargar las imágenes: {e}")
 
     def submit_person(self):
         name = self.name_entry.get()
         document = self.document_entry.get()
-
 
         if name and document:
             # Verificar si el cliente ya está registrado en la base de datos
@@ -53,18 +101,13 @@ class ClienteView:
                 self.client_id = self.controller.add_new_client(name, document)
                 messagebox.showinfo("Bienvenido", f"Bienvenido, {name}! Tus datos han sido guardados.")
 
-            # Destruir los widgets de entrada y el botón antes de ir a la siguiente vista
-            self.name.destroy()
-            self.name_entry.destroy()
-            self.document.destroy()
-            self.document_entry.destroy()
-            self.submit_button.destroy()
+            # Limpiar los widgets de entrada y el botón antes de ir a la siguiente vista
+            self.frame.destroy()
 
             # Llamar a la función para ir a la pantalla de órdenes
-            self.ordenes_cliente(self.root, self.client_id , self.mesa_id)
+            self.ordenes_cliente(self.root, self.client_id, self.mesa_id)
         else:
             messagebox.showerror("Error", "Por favor, ingrese todos los datos.")
-
 
     def ordenes_cliente(self, root, client_id, mesa_id):
         self.current_order = None

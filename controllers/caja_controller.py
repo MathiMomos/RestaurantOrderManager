@@ -52,3 +52,6 @@ class CajaController:
     def close_connection(self):
         if self.conn:
             self.conn.close()
+
+    def remove_order(self, order_id):
+        pass

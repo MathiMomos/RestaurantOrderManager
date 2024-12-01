@@ -135,7 +135,7 @@ class LoginView:
             ChefView(root, user_id)
         elif role == 'caja':
             CajaView(root, user_id)
-        elif role == 'cliente':
+        elif role == 'mesa':
             # Crear una instancia del controlador del cliente
             from controllers.cliente_controller import ClienteController
             cliente_controller = ClienteController()

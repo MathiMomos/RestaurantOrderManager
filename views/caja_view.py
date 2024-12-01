@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from controllers.caja_controller import CajaController
 
+
 class CajaView:
     def __init__(self, root, user_id):
         self.root = root
@@ -23,7 +24,8 @@ class CajaView:
         self.style.map("Treeview", background=[('selected', '#3b1d14')], foreground=[('selected', 'white')])
 
         # Treeview para mostrar los pedidos
-        self.tree = ttk.Treeview(root, columns=("ID", "Cliente", "Platos", "Total", "Tipo Cuenta"), show='headings', style="Treeview")
+        self.tree = ttk.Treeview(root, columns=("ID", "Cliente", "Platos", "Total", "Tipo Cuenta"), show='headings',
+                                 style="Treeview")
         self.tree.heading("ID", text="ID")
         self.tree.heading("Cliente", text="Cliente")
         self.tree.heading("Platos", text="Platos")
@@ -36,11 +38,17 @@ class CajaView:
         button_frame.pack(pady=10)
 
         # Botón para generar la boleta del pedido (solo para cuentas cliente)
-        self.button_generate = tk.Button(button_frame, text="Generar Boleta (Clientes)", command=self.generate_selected_bill, width=25, height=2, font=("Arial", 12), bg="#3b1d14", fg="white", highlightbackground="#3b1d14", highlightthickness=2, relief="solid")
+        self.button_generate = tk.Button(button_frame, text="Generar Boleta (Clientes)",
+                                         command=self.generate_selected_bill, width=25, height=2, font=("Arial", 12),
+                                         bg="#3b1d14", fg="white", highlightbackground="#3b1d14", highlightthickness=2,
+                                         relief="solid")
         self.button_generate.pack(side=tk.LEFT, padx=10)
 
         # Botón para procesar pedidos de cuentas panel
-        self.button_process_panel = tk.Button(button_frame, text="Procesar Pedido de Panel", command=self.process_selected_panel_order, width=25, height=2, font=("Arial", 12), bg="#3b1d14", fg="white", highlightbackground="#3b1d14", highlightthickness=2, relief="solid")
+        self.button_process_panel = tk.Button(button_frame, text="Procesar Pedido de Panel",
+                                              command=self.controller.process_panel_order(self.user_id), width=25, height=2,
+                                              font=("Arial", 12), bg="#3b1d14", fg="white",
+                                              highlightbackground="#3b1d14", highlightthickness=2, relief="solid")
         self.button_process_panel.pack(side=tk.LEFT, padx=10)
 
         self.load_orders()
@@ -62,39 +70,49 @@ class CajaView:
             order = self.tree.item(selected, 'values')
             order_id = order[0]
             cliente = order[1]
+            total = order[3]
             tipo_cuenta = order[4]
+
             if tipo_cuenta == 'cliente':
-                confirm = messagebox.askyesno("Generar Boleta", f"¿Deseas generar la boleta para el pedido ID {order_id} de {cliente}?")
-                if confirm:
-                    success = self.controller.generate_bill(order_id)
-                    if success:
-                        messagebox.showinfo("Éxito", "Boleta generada.")
-                        self.load_orders()
-                    else:
-                        messagebox.showerror("Error", "No se pudo generar la boleta.")
+                # Abre la ventana para ingresar el método de pago
+                self.open_payment_window(order_id, cliente, total)
             else:
                 messagebox.showwarning("Advertencia", "Solo se puede generar boleta para pedidos de clientes.")
         else:
             messagebox.showwarning("Advertencia", "Por favor, selecciona un pedido para generar la boleta.")
 
-    def process_selected_panel_order(self):
-        """Procesar el pedido de panel seleccionado"""
-        selected = self.tree.focus()
-        if selected:
-            order = self.tree.item(selected, 'values')
-            order_id = order[0]
-            panel = order[1]
-            tipo_cuenta = order[4]
-            if tipo_cuenta == 'panel':
-                confirm = messagebox.askyesno("Procesar Pedido de Panel", f"¿Deseas procesar el pedido ID {order_id} de {panel} y enviarlo al chef?")
-                if confirm:
-                    success = self.controller.process_panel_order(order_id)
-                    if success:
-                        messagebox.showinfo("Éxito", f"Pedido ID {order_id} procesado y enviado al chef.")
-                        self.load_orders()
-                    else:
-                        messagebox.showerror("Error", "No se pudo procesar el pedido de panel.")
-            else:
-                messagebox.showwarning("Advertencia", "Este botón es solo para pedidos de panel.")
+    def open_payment_window(self, order_id, cliente, total):
+        """Abre una ventana emergente para ingresar el método de pago"""
+        payment_window = tk.Toplevel(self.root)
+        payment_window.title("Método de Pago")
+        payment_window.geometry("400x300")
+
+        tk.Label(payment_window, text=f"ID Pedido: {order_id}", font=("Arial", 12)).pack(pady=10)
+        tk.Label(payment_window, text=f"Cliente: {cliente}", font=("Arial", 12)).pack(pady=10)
+        tk.Label(payment_window, text=f"Total a Pagar: {total}", font=("Arial", 12)).pack(pady=10)
+
+        # Selección del método de pago
+        payment_method_label = tk.Label(payment_window, text="Método de Pago:", font=("Arial", 12))
+        payment_method_label.pack(pady=10)
+        payment_methods = ["Tarjeta", "Yape", "Plin", "Sencillo"]
+        method_var = tk.StringVar()
+        method_dropdown = ttk.Combobox(payment_window, textvariable=method_var, values=payment_methods,
+                                       state="readonly")
+        method_dropdown.pack(pady=10)
+        method_dropdown.set(payment_methods[0])  # Establecer valor por defecto
+
+        # Botón para confirmar el pago y generar la boleta
+        confirm_button = tk.Button(payment_window, text="Generar Boleta",
+                                   command=lambda: self.confirm_payment(payment_window, order_id, method_var.get(),
+                                                                        total))
+        confirm_button.pack(pady=20)
+
+    def confirm_payment(self, payment_window, order_id, method_pay, total):
+        """Confirma el pago, inserta en la tabla caja y finaliza la orden"""
+        success = self.controller.generate_bill(order_id, method_pay)
+        if success:
+            messagebox.showinfo("Éxito", "Boleta generada y orden finalizada.")
+            self.load_orders()
+            payment_window.destroy()  # Cerrar ventana de pago
         else:
-            messagebox.showwarning("Advertencia", "Por favor, selecciona un pedido de panel para procesarlo.")
+            messagebox.showerror("Error", "No se pudo generar la boleta.")

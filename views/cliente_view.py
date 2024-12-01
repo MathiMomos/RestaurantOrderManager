@@ -3,14 +3,73 @@ from tkinter import messagebox, ttk
 from controllers.cliente_controller import ClienteController
 
 class ClienteView:
+
     def __init__(self, root, user_id):
         self.root = root
         self.root.title("Cliente - Realizar Pedido")
-        self.root.geometry("1280x720")  # Tamaño fijo de la ventana
         self.controller = ClienteController()
-        self.user_id = user_id
+        self.user_id = user_id # Aquí deberías recibir un string como "mesa1"
+        self.client_id = 0
+        self.mesa_id = 0
         self.current_order = None
         self.current_category = 0
+
+        # Centrar la ventana
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+
+
+        # Crear los widgets
+        self.name = tk.Label(self.root, text="Nombre:")
+        self.name.pack(pady=10)
+
+        self.name_entry = tk.Entry(self.root, width=30)
+        self.name_entry.pack(pady=5)
+
+        self.document= tk.Label(self.root, text="Documento:")
+        self.document.pack(pady=10)
+
+        self.document_entry = tk.Entry(self.root, width=30)
+        self.document_entry.pack(pady=5)
+
+        self.submit_button = tk.Button(self.root, text="INGRESAR", command=self.submit_person)
+        self.submit_button.pack(pady=20)
+
+    def submit_person(self):
+        name = self.name_entry.get()
+        document = self.document_entry.get()
+
+
+        if name and document:
+            # Verificar si el cliente ya está registrado en la base de datos
+            existing_client = self.controller.get_client_by_document(document)
+
+            if existing_client:
+                # El cliente ya está registrado
+                self.client_id = existing_client[0]
+                messagebox.showinfo("Bienvenido", f"Bienvenido de nuevo, {existing_client[1]}!")
+            else:
+                # El cliente no está registrado, registrar en la base de datos
+                self.client_id = self.controller.add_new_client(name, document)
+                messagebox.showinfo("Bienvenido", f"Bienvenido, {name}! Tus datos han sido guardados.")
+
+            # Destruir los widgets de entrada y el botón antes de ir a la siguiente vista
+            self.name.destroy()
+            self.name_entry.destroy()
+            self.document.destroy()
+            self.document_entry.destroy()
+            self.submit_button.destroy()
+
+            # Llamar a la función para ir a la pantalla de órdenes
+            self.ordenes_cliente(self.root, self.client_id , self.mesa_id)
+        else:
+            messagebox.showerror("Error", "Por favor, ingrese todos los datos.")
+
+
+    def ordenes_cliente(self, root, client_id, mesa_id):
+        self.current_order = None
+        self.current_category = 0
+
 
         # Configuración del fondo
         self.root.configure(bg="white")
@@ -134,7 +193,7 @@ class ClienteView:
 
     def add_to_order(self, plato, precio, cantidad=1):
         # Llamada al metodo de agregar ítem al pedido
-        self.controller.add_item_to_order(self.user_id, plato, precio, cantidad)
+        self.controller.add_item_to_order(self.user_id,self.client_id ,plato, precio, cantidad)
         self.load_current_order()
 
     def remove_selected_item(self):
@@ -207,7 +266,7 @@ class ClienteView:
         self.button_remove.pack(side=tk.LEFT, padx=20, pady=20)
 
     def load_current_order(self):
-        self.current_order = self.controller.get_current_order(self.user_id)
+        self.current_order = self.controller.get_current_order(self.user_id , self.client_id)
         for row in self.tree_order.get_children():
             self.tree_order.delete(row)
         if self.current_order:

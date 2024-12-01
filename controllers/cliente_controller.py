@@ -1,29 +1,79 @@
 # controllers/cliente_controller.py .
+import sqlite3
+
 from data.database import create_connection
+from datetime import datetime
+
 
 
 class ClienteController:
     def __init__(self):
         self.conn = create_connection('data/restaurant.db')
 
+    def get_client_by_document(self, document):
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            SELECT id, name, documents FROM client
+            WHERE documents = ?
+        """, (document,))
+        return cursor.fetchone()  # Retorna una fila (o None si no existe)
+
+    def add_new_client(self, name, document):
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            INSERT INTO client (name, documents, visits)
+            VALUES (?, ?, 0)
+        """, (name, document))
+        self.conn.commit()
+        return cursor.lastrowid  # Retornar el ID del cliente recién creado
+
+
+    def apply_discount_and_update_visits(self, client_id):
+        """
+        Incrementa las visitas del cliente y aplica descuentos basados en el número de visitas.
+        """
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            SELECT visits FROM client WHERE id = ?
+        """, (client_id,))
+        visits = cursor.fetchone()[0]
+
+        # Incrementar visitas
+        new_visits = visits + 1
+        cursor.execute("""
+            UPDATE client
+            SET visits = ?
+            WHERE id = ?
+        """, (new_visits, client_id))
+
+        # Calcular descuento
+        discount = 0
+        if new_visits >= 5:
+            discount = 0.10  # 10% de descuento
+        elif new_visits >= 10:
+            discount = 0.20  # 20% de descuento
+
+        self.conn.commit()
+        return discount
+
     def get_menu_items(self):
         cursor = self.conn.cursor()
-        cursor.execute("SELECT id, name, price FROM menu")
+        cursor.execute("SELECT category, name, price FROM menu")
         return cursor.fetchall()
 
-    def get_current_order(self, user_id):
+    def get_current_order(self, user_id , client_id):
         """Obtiene el pedido actual del usuario si está en estado 'pendiente'."""
         cursor = self.conn.cursor()
         cursor.execute("""
             SELECT id, items, item_prices, item_amounts, total FROM orders
-            WHERE user_id = ? AND status = 'pendiente'
-        """, (user_id,))
+            WHERE client_id = ? AND status = 'pendiente'
+        """, (client_id,))
         return cursor.fetchone()
 
-    def add_item_to_order(self, user_id, item_name, item_price, item_amount):
+    def add_item_to_order(self, user_id, client_id, item_name, item_price, item_amount):
         """Agrega un plato al pedido del usuario o actualiza la cantidad si ya está en el pedido."""
         cursor = self.conn.cursor()
-        order = self.get_current_order(user_id)
+        order = self.get_current_order(user_id,client_id)
 
         if order:
             order_id, items, prices, amounts, total = order
@@ -81,16 +131,16 @@ class ClienteController:
             new_amounts = f"{item_amount}, "
             new_total = item_price * item_amount
             cursor.execute("""
-                INSERT INTO orders (user_id, items, item_prices, item_amounts, status, total)
-                VALUES (?, ?, ?, ?, 'pendiente', ?)
-            """, (user_id, new_items, new_prices, new_amounts, new_total))
+                INSERT INTO orders (mesa_id ,client_id, items, item_prices, item_amounts, status , total)
+                VALUES (? , ?, ?, ?, ?, 'pendiente', ?)
+            """, (0, client_id, new_items, new_prices, new_amounts, new_total))
 
         self.conn.commit()
 
-    def remove_item_from_order(self, user_id, item_name):
+    def remove_item_from_order(self, user_id,client_id, item_name):
         """Elimina un plato del pedido si su cantidad llega a 0, o decrementa su cantidad en 1."""
         cursor = self.conn.cursor()
-        order = self.get_current_order(user_id)
+        order = self.get_current_order(user_id , client_id)
 
         if order:
             order_id, items, prices, amounts, total = order
@@ -147,11 +197,16 @@ class ClienteController:
     def confirm_order(self, order_id):
         cursor = self.conn.cursor()
         try:
+            # Obtener la fecha y hora actual en formato ISO
+            current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+            # Actualizar el estado del pedido y guardar la fecha y hora de ingreso
             cursor.execute("""
                 UPDATE orders
-                SET status = 'confirmado'
+                SET status = 'confirmado', time_in = ?
                 WHERE id = ?
-            """, (order_id,))
+            """, (current_time, order_id))
+
             self.conn.commit()
             return True
         except Exception as e:

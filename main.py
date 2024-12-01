@@ -2,9 +2,9 @@
 import tkinter as tk
 from views.login_view import LoginView
 from data.database import initialize_database
-
 def main():
-    # Inicializar la base de datos (solo la primera vez)
+
+    # Inicializar la base de datos (solo la primera vez)main
     initialize_database()
 
     # Crear la ventana principal para el login

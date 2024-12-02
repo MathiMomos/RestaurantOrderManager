@@ -11,7 +11,7 @@ class LoginView:
     def __init__(self, root):
         self.root = root
         self.root.title("Login - Restaurant Order Manager")
-        self.root.geometry("1200x600")
+        self.root.geometry("1280x720")
         self.root.configure(bg="#F5F5F5")
         self.controller = LoginController()
 

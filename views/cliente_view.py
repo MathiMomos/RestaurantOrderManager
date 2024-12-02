@@ -321,7 +321,7 @@ class ClienteView:
             precios_lista = [float(precio.strip()) for precio in item_prices.split(',') if precio.strip()]
             cantidades_lista = [int(cantidad.strip()) for cantidad in item_amounts.split(',') if cantidad.strip()]
             for plato, precio, cantidad in zip(platos_lista, precios_lista, cantidades_lista):
-                self.tree_order.insert("", tk.END, values=(plato, f"S/ {precio:.2f}", f"{cantidad}"))
+                self.tree_order.insert("", tk.END, values=(plato, f"S/ {precio*cantidad:.2f}", f"{cantidad}"))
             self.tree_order.insert("", tk.END, values=("Total", f"S/ {total:.2f}"))
         else:
             self.tree_order.insert("", tk.END, values=("No hay pedido actual.", "S/ 0.00"))

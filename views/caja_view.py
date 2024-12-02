@@ -75,7 +75,7 @@ class CajaView:
             tipo_cuenta = order[4]
 
             if tipo_cuenta == 'cliente':
-                # Abre la ventana para ingresar el método de pago
+                # Abre la ventana para ingresar el metodo de pago
                 self.open_payment_window(order_id, cliente, total)
             else:
                 messagebox.showwarning("Advertencia", "Solo se puede generar boleta para pedidos de clientes.")
@@ -83,7 +83,7 @@ class CajaView:
             messagebox.showwarning("Advertencia", "Por favor, selecciona un pedido para generar la boleta.")
 
     def open_payment_window(self, order_id, cliente, total):
-        """Abre una ventana emergente para ingresar el método de pago"""
+        """Abre una ventana emergente para ingresar el metodo de pago"""
         payment_window = tk.Toplevel(self.root)
         payment_window.title("Método de Pago")
         payment_window.geometry("400x300")

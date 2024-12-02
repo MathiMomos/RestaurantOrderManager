@@ -31,33 +31,33 @@ class PanelView:
             self.buttons_frame,
             text="Mostrar Mesas",
             font=("Arial", 16, "bold"),
-            bg="green",
-            fg="white",
+            bg="#90EE90",  # Verde claro
+            fg="black",
             command=self.show_tables
         )
-        self.button_show_tables.grid(row=0, column=0, padx=20, pady=20)
+        self.button_show_tables.grid(row=0, column=0, padx=20, pady=20, sticky="ew")
 
         # Botón para pedir desde el panel
         self.button_manage_orders = tk.Button(
             self.buttons_frame,
             text="Pedir desde Panel",
             font=("Arial", 16, "bold"),
-            bg="blue",
+            bg="#4682B4",  # Azul acero
             fg="white",
-            command=self.manage_orders  # Vacío por ahora
+            command=self.manage_orders
         )
-        self.button_manage_orders.grid(row=0, column=1, padx=20, pady=20)
+        self.button_manage_orders.grid(row=0, column=1, padx=20, pady=20, sticky="ew")
 
         # Botón para regresar a LoginView
         self.button_logout = tk.Button(
             self.buttons_frame,
             text="Cerrar Sesión",
             font=("Arial", 16, "bold"),
-            bg="red",
+            bg="#FF6347",  # Rojo tomate
             fg="white",
             command=self.logout
         )
-        self.button_logout.grid(row=1, column=0, padx=20, pady=20)
+        self.button_logout.grid(row=1, column=0, columnspan=2, padx=20, pady=20, sticky="ew")
 
     def show_tables(self):
         """Mostrar el estado de las mesas."""
@@ -74,7 +74,7 @@ class PanelView:
         # Mostrar las mesas con el estado apropiado
         for index, table in enumerate(tables):
             table_id, state = table  # Suponemos que 'state_table' es 0 (libre) o 1 (ocupada)
-            color = "green" if state == 0 else "red"
+            color = "#90EE90" if state == 0 else "#FF6347"  # Verde claro o rojo tomate
             text = f"Mesa {table_id}: {'Libre' if state == 0 else 'Ocupada'}"
 
             button = tk.Button(
@@ -82,20 +82,21 @@ class PanelView:
                 text=text,
                 font=("Arial", 14),
                 bg=color,
-                fg="black",
+                fg="#1C1C1C",  # Negro más oscuro
                 state="disabled"  # Deshabilitamos el botón ya que es solo para mostrar el estado
             )
             button.grid(row=index // 4, column=index % 4, padx=10, pady=10)
 
-        # Cambiado de pack a grid para el botón de "Volver"
-        back_button = tk.Button(tables_window, text="Volver", font=("Arial", 14), bg="gray", fg="white",
-                                command=self.return_to_main)
-        back_button.grid(row=len(tables) // 4 + 1, column=0, columnspan=4, pady=20)  # Alinea el botón al final
-
-    def return_to_main(self):
-        """Cerrar la ventana de mesas y regresar a la ventana principal."""
-        self.root.deiconify()  # Mostrar la ventana principal nuevamente
-        self.root.quit()  # Terminar la ejecución de la ventana secundaria
+        # Botón de "Volver"
+        back_button = tk.Button(
+            tables_window,
+            text="Volver",
+            font=("Arial", 14),
+            bg="gray",
+            fg="white",
+            command=tables_window.destroy
+        )
+        back_button.grid(row=len(tables) // 4 + 1, column=0, columnspan=4, pady=20)
 
     def manage_orders(self):
         """Gestionar pedidos desde el panel."""

@@ -61,10 +61,11 @@ class LoginView:
         self.entry_password.bind("<FocusIn>", self.clear_password)
         self.entry_password.bind("<FocusOut>", self.restore_password)
         self.entry_password.pack(side="left", fill="both", expand=True, padx=(10, 0))
+        self.entry_password.place(relx=0.5, rely=0.5, anchor='center')
 
         # Botón para mostrar/ocultar contraseña
         self.show_password_icon = tk.Label(
-            self.password_frame, text="👁", cursor="hand2", bg="white", fg="#888"
+            self.password_frame, text="👁", font=("Arial", 13), cursor="hand2", bg="white", fg="#888"
         )
         self.show_password_icon.pack(side="right", padx=(0, 10))
         self.show_password_icon.bind("<Button-1>", self.toggle_password)
@@ -101,10 +102,10 @@ class LoginView:
     def toggle_password(self, event):
         if self.password_shown:
             self.entry_password.config(show="*")
-            self.show_password_icon.config(text="👁")
+            self.show_password_icon.config(text="👁", font=("Arial", 13))
         else:
             self.entry_password.config(show="")
-            self.show_password_icon.config(text="🙈")
+            self.show_password_icon.config(text="🙈", font=("Arial", 13))
         self.password_shown = not self.password_shown
 
     def login(self):

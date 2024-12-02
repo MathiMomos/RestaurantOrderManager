@@ -24,13 +24,13 @@ class ChefView:
         self.style.map("Treeview", background=[('selected', '#3b1d14')], foreground=[('selected', 'white')])
 
         # Treeview para mostrar los pedidos confirmados
-        self.tree = ttk.Treeview(root, columns=("ID", "Cliente/Panel", "Platos", "Total", "Tipo Cuenta"),
+        self.tree = ttk.Treeview(root, columns=("ID", "Cliente/Panel", "Platos", "Total", "Estado"),
                                  show='headings', style="Treeview")
         self.tree.heading("ID", text="ID")
         self.tree.heading("Cliente/Panel", text="Cliente/Panel")
         self.tree.heading("Platos", text="Platos")
         self.tree.heading("Total", text="Total")
-        self.tree.heading("Tipo Cuenta", text="Tipo Cuenta")
+        self.tree.heading("Estado", text="Estado")
         self.tree.pack(padx=20, pady=20, fill=tk.BOTH, expand=True)
 
         # Botón para confirmar el pedido seleccionado

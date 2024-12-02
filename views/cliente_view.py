@@ -16,7 +16,7 @@ class ClienteView:
         self.current_category = 0
 
         # Configuración de la ventana
-        self.root.geometry("1200x600")  # Resolución fija de 1200x600
+        self.root.geometry("1280x720")  # Resolución fija de 1200x600
         self.root.resizable(False, False)  # Deshabilitar cambio de tamaño
         self.root.configure(bg="white")  # Fondo fuera del marco blanco
 
@@ -88,26 +88,29 @@ class ClienteView:
         name = self.name_entry.get()
         document = self.document_entry.get()
 
-        if name and document:
-            # Verificar si el cliente ya está registrado en la base de datos
-            existing_client = self.controller.get_client_by_document(document)
+        if len(document) == 8:
+            if name and document:
+                # Verificar si el cliente ya está registrado en la base de datos
+                existing_client = self.controller.get_client_by_document(document)
 
-            if existing_client:
-                # El cliente ya está registrado
-                self.client_id = existing_client[0]
-                messagebox.showinfo("Bienvenido", f"Bienvenido de nuevo, {existing_client[1]}!")
+                if existing_client:
+                    # El cliente ya está registrado
+                    self.client_id = existing_client[0]
+                    messagebox.showinfo("Bienvenido", f"Bienvenido de nuevo, {existing_client[1]}!")
+                else:
+                    # El cliente no está registrado, registrar en la base de datos
+                    self.client_id = self.controller.add_new_client(name, document)
+                    messagebox.showinfo("Bienvenido", f"Bienvenido, {name}! Tus datos han sido guardados.")
+
+                # Limpiar los widgets de entrada y el botón antes de ir a la siguiente vista
+                self.frame.destroy()
+
+                # Llamar a la función para ir a la pantalla de órdenes
+                self.ordenes_cliente(self.root, self.client_id, self.mesa_id)
             else:
-                # El cliente no está registrado, registrar en la base de datos
-                self.client_id = self.controller.add_new_client(name, document)
-                messagebox.showinfo("Bienvenido", f"Bienvenido, {name}! Tus datos han sido guardados.")
-
-            # Limpiar los widgets de entrada y el botón antes de ir a la siguiente vista
-            self.frame.destroy()
-
-            # Llamar a la función para ir a la pantalla de órdenes
-            self.ordenes_cliente(self.root, self.client_id, self.mesa_id)
+                messagebox.showerror("Error", "Por favor, ingrese todos los datos.")
         else:
-            messagebox.showerror("Error", "Por favor, ingrese todos los datos.")
+            messagebox.showerror("Error", "El DNI ingresado no es válido.")
 
     def ordenes_cliente(self, root, client_id, mesa_id):
         self.current_order = None
@@ -252,7 +255,7 @@ class ClienteView:
         plato_seleccionado = selected_item_values[0]  # Nombre del plato
 
         # Llamar al metodo para eliminar el plato o decrementar la cantidad
-        self.controller.remove_item_from_order(self.user_id, plato_seleccionado)
+        self.controller.remove_item_from_order(self.user_id, self.client_id, plato_seleccionado)
 
         # Recargar la orden actual después de la eliminación
         self.load_current_order()

@@ -91,7 +91,7 @@ class CajaView:
         tk.Label(payment_window, text=f"Cliente: {cliente}", font=("Arial", 12)).pack(pady=10)
         tk.Label(payment_window, text=f"Total a Pagar: {total}", font=("Arial", 12)).pack(pady=10)
 
-        # Selección del método de pago
+        # Selección del metodo de pago
         payment_method_label = tk.Label(payment_window, text="Método de Pago:", font=("Arial", 12))
         payment_method_label.pack(pady=10)
         payment_methods = ["Tarjeta", "Yape", "Plin", "Sencillo"]

@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 from tkinter import messagebox, ttk
 from controllers.caja_controller import CajaController
@@ -46,8 +47,8 @@ class CajaView:
 
         # Botón para procesar pedidos de cuentas panel
         self.button_process_panel = tk.Button(button_frame, text="Procesar Pedido de Panel",
-                                              command=self.controller.process_panel_order(self.user_id), width=25, height=2,
-                                              font=("Arial", 12), bg="#3b1d14", fg="white",
+                                              command=lambda: self.controller.process_panel_order(self.user_id),
+                                              width=25, height=2, font=("Arial", 12), bg="#3b1d14", fg="white",
                                               highlightbackground="#3b1d14", highlightthickness=2, relief="solid")
         self.button_process_panel.pack(side=tk.LEFT, padx=10)
 
@@ -109,10 +110,12 @@ class CajaView:
 
     def confirm_payment(self, payment_window, order_id, method_pay, total):
         """Confirma el pago, inserta en la tabla caja y finaliza la orden"""
-        success = self.controller.generate_bill(order_id, method_pay)
-        if success:
-            messagebox.showinfo("Éxito", "Boleta generada y orden finalizada.")
+        pdf_path = self.controller.generate_bill(order_id, method_pay)
+        if pdf_path:
+            messagebox.showinfo("Éxito", f"Boleta generada correctamente:\n{pdf_path}")
             self.load_orders()
             payment_window.destroy()  # Cerrar ventana de pago
+            # Abrir el PDF generado
+            os.startfile(pdf_path)
         else:
             messagebox.showerror("Error", "No se pudo generar la boleta.")

@@ -95,7 +95,7 @@ class CajaView:
         # Selección del metodo de pago
         payment_method_label = tk.Label(payment_window, text="Método de Pago:", font=("Arial", 12))
         payment_method_label.pack(pady=10)
-        payment_methods = ["Tarjeta", "Yape", "Plin", "Sencillo"]
+        payment_methods = ["Tarjeta", "Yape", "Plin", "Efectivo"]
         method_var = tk.StringVar()
         method_dropdown = ttk.Combobox(payment_window, textvariable=method_var, values=payment_methods,
                                        state="readonly")

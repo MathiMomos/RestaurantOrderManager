@@ -148,38 +148,40 @@ class CajaView:
                     c.drawCentredString(300, y_margin, "RUC: 10435353505")
                     y_margin -= line_spacing * 2
 
-                    # Línea separadora
-                    c.line(x_margin, y_margin, 550, y_margin)
-                    y_margin -= line_spacing
+                    # Cuadro de detalles
+                    c.setStrokeColorRGB(0, 0, 0)
+                    c.setLineWidth(1)
+                    c.rect(x_margin, y_margin - 120, 500, 120)
 
                     # Información del cliente y pedido
+                    y_detail = y_margin - 20
                     c.setFont("Helvetica-Bold", 12)
-                    c.drawString(x_margin, y_margin, f"Fecha: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
-                    y_margin -= line_spacing
-                    c.drawString(x_margin, y_margin, f"Cliente: {cliente}")
-                    y_margin -= line_spacing
-                    c.drawString(x_margin, y_margin, f"Pedido ID: {order_id}")
-                    y_margin -= line_spacing
-                    c.drawString(x_margin, y_margin, f"Platos: {platos}")
-                    y_margin -= line_spacing * 2
+                    c.drawString(x_margin + 10, y_detail, f"Fecha: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
+                    y_detail -= line_spacing
+                    c.drawString(x_margin + 10, y_detail, f"Cliente: {cliente}")
+                    y_detail -= line_spacing
+                    c.drawString(x_margin + 10, y_detail, f"Pedido ID: {order_id}")
+                    y_detail -= line_spacing
+                    c.drawString(x_margin + 10, y_detail, f"Platos: {platos}")
+                    y_detail -= line_spacing * 2
 
                     # Totales del pedido
                     c.setFont("Helvetica", 12)
                     subtotal = total / 1.18
                     igv = total - subtotal
-                    c.drawString(x_margin, y_margin, f"Subtotal: S/ {subtotal:.2f}")
-                    y_margin -= line_spacing
-                    c.drawString(x_margin, y_margin, f"IGV (18%): S/ {igv:.2f}")
-                    y_margin -= line_spacing
+                    c.drawString(x_margin, y_detail, f"Subtotal: S/ {subtotal:.2f}")
+                    y_detail -= line_spacing
+                    c.drawString(x_margin, y_detail, f"IGV (18%): S/ {igv:.2f}")
+                    y_detail -= line_spacing
                     c.setFont("Helvetica-Bold", 12)
-                    c.drawString(x_margin, y_margin, f"Total: S/ {total:.2f}")
-                    y_margin -= line_spacing * 2
+                    c.drawString(x_margin, y_detail, f"Total: S/ {total:.2f}")
+                    y_detail -= line_spacing * 2
 
                     # Mensaje de agradecimiento
                     c.setFont("Helvetica", 12)
-                    c.drawCentredString(300, y_margin, "¡Gracias por su preferencia!")
-                    y_margin -= line_spacing
-                    c.line(x_margin, y_margin, 550, y_margin)
+                    c.drawCentredString(300, y_detail, "¡Gracias por su preferencia!")
+                    y_detail -= line_spacing
+                    c.line(x_margin, y_detail, 550, y_detail)
 
                     # Guardar el PDF
                     c.save()
@@ -205,7 +207,3 @@ class CajaView:
             messagebox.showinfo("Procesar Pedido", f"Pedido ID {order_id} ha sido procesado.")
         else:
             messagebox.showwarning("Advertencia", "Por favor, selecciona un pedido para procesar.")
-
-
-
-

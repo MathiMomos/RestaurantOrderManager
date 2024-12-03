@@ -65,7 +65,7 @@ class ChefController:
                 return True
 
             elif current_status == 'en caja':
-                # Si ya está 'en caja', pasa a 'finalizado'
+                # Si ya está 'en caja', pasa a 'finaliazado'
                 cursor.execute("""
                     UPDATE orders
                     SET status = 'finalizado'

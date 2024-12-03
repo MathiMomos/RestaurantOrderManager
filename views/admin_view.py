@@ -67,7 +67,7 @@ class AdminView:
         )
         self.button_create.pack(pady=10)
 
-        # Marco para lista de usuarios (derecha)
+        # Marco paraa lista de usuarios (derecha)
         self.frame_list = tk.Frame(root, bg=bg_color, bd=2, relief="solid", padx=10, pady=10)
         self.frame_list.pack(side="right", padx=20, pady=20, fill="both", expand=True)
 

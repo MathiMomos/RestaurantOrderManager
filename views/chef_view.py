@@ -76,7 +76,7 @@ class ChefView:
                                           f"¿Deseas confirmar el pedido ID {order_id} de {cliente_panel}?")
             if confirm:
                 try:
-                    # Confirmar el pedido
+                    # Confairmar el pedido
                     success = self.controller.confirm_order(order_id)
                     if success == True:
                         messagebox.showinfo("Éxito", f"Pedido ID {order_id} confirmado y enviado a la caja.")

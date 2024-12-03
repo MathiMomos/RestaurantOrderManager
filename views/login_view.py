@@ -65,7 +65,7 @@ class LoginView:
         self.entry_password.pack(side="left", fill="both", expand=True, padx=(10, 0))
         self.entry_password.place(relx=0.5, rely=0.5, anchor='center')
 
-        # Botón para mostrar/ocultar contraseña
+        # Botón para mosatrar/ocultar contraseña
         self.show_password_icon = tk.Label(
             self.password_frame, text="👁", font=("Arial", 13), cursor="hand2", bg="white", fg="#888"
         )

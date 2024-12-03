@@ -300,7 +300,7 @@ class ClienteView:
         )
         self.button_confirm.pack(side=tk.LEFT, padx=20, pady=20)
 
-        # Botón para eliminar el plato seleccionado
+        # Botón para eliminaar el plato seleccionado
         self.button_remove = tk.Button(
             self.left_frame,
             text="Eliminar Plato",

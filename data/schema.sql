@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS menu (
     price REAL NOT NULL
 );
 
--- Tabla de clientes
+-- Tabla de clientaes
 CREATE TABLE IF NOT EXISTS client (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,

@@ -102,7 +102,7 @@ class CajaView:
         method_dropdown.pack(pady=10)
         method_dropdown.set(payment_methods[0])  # Establecer valor por defecto
 
-        # Botón para confirmar el pago y generar la boleta
+        # Botón paraa confirmar el pago y generar la boleta
         confirm_button = tk.Button(payment_window, text="Generar Boleta",
                                    command=lambda: self.confirm_payment(payment_window, order_id, method_var.get(),
                                                                         total))

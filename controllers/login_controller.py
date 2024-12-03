@@ -1,5 +1,5 @@
 # controllers/login_controller.py
-#perdon por la demora :v
+#perdon por la demora :av
 import hashlib
 from data.database import create_connection
 

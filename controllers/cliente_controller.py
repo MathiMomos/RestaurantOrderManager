@@ -197,7 +197,7 @@ class ClienteController:
     def confirm_order(self, order_id):
         cursor = self.conn.cursor()
         try:
-            # Obtener la fecha y hora actual en formato ISO
+            # Obtener la fecha y hora actuaal en formato ISO
             current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
             # Actualizar el estado del pedido y guardar la fecha y hora de ingreso

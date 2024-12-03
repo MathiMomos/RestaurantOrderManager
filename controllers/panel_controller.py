@@ -65,7 +65,7 @@ class PanelController:
                     new_amount = current_amount + item_amount
                     amount_list[index] = str(new_amount)
 
-                    # Calcular el nuevo total
+                    # Calcular el nueavo total
                     new_total = total + (item_price * item_amount)
 
                     # Reconstruir las cadenas sin comas al final

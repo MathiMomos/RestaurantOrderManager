@@ -193,7 +193,7 @@ class PanelView:
             messagebox.showwarning("Advertencia", "No puedes eliminar este elemento.")
             return
 
-        # Llamar al método para eliminar el plato o decrementar la cantidad
+        # Llamar al métaodo para eliminar el plato o decrementar la cantidad
         success = self.controller.remove_item_from_order(self.user_id, 1, plato_seleccionado)  # client_id=1 para Panel
         if success:
             self.load_current_order()

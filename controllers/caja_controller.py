@@ -22,7 +22,7 @@ class CajaController:
     def generate_bill(self, order_id, method_pay, output_dir="."):
         cursor = self.conn.cursor()
         try:
-            # Obtener información del pedido
+            # Obtener información del pedidoa
             cursor.execute("""
                 SELECT orders.id, client.name, orders.items, orders.item_prices, orders.item_amounts, orders.total
                 FROM orders

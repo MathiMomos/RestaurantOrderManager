@@ -7,7 +7,7 @@ def main():
     # Inicializar la base de datos (solo la primera vez)main
     initialize_database()
 
-    # Crear la ventana principal para el login
+    # Creaar la ventana principal para el login
     root = tk.Tk()
     LoginView(root)
     root.mainloop()

@@ -115,7 +115,7 @@ def initialize_database():
             #     username = f"mesa{i}"
             #     password = f"mesa{i}"
             #     hashed_password = hash_password(password)
-            #     cursor.execute(
+            #     cursor.execute(a
             #         "INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)",
             #         (username, hashed_password, "mesa")
             #     )

@@ -1,3 +1,5 @@
+# views/login_view.py
+
 import tkinter as tk
 from tkinter import PhotoImage, messagebox
 from controllers.login_controller import LoginController
@@ -136,17 +138,10 @@ class LoginView:
             ChefView(root, user_id)
         elif role == 'caja':
             CajaView(root, user_id)
-        elif role == 'mesa':
-            # Crear una instancia del controlador del cliente
-            from controllers.cliente_controller import ClienteController
-            cliente_controller = ClienteController()
-
-            # Mostrar la vista para el cliente
-            from views.cliente_view import ClienteView
-            cliente_view = ClienteView(root, cliente_controller)  # Pasamos el controlador
+        elif role == 'cliente':
+            ClienteView(root, user_id)  # Pasar user_id correctamente
         elif role == 'panel':
             PanelView(root, user_id)
         else:
             messagebox.showerror("Error", "Rol no implementado.")
         root.mainloop()
-

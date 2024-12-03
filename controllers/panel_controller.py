@@ -1,33 +1,26 @@
+# controllers/panel_controller.py
+
 import sqlite3
 from data.database import create_connection
+from datetime import datetime
 
 class PanelController:
     def __init__(self):
         self.conn = create_connection('data/restaurant.db')
 
-    # --- Gestión de mesas ---
-    def get_tables_status(self):
-        """Obtiene el estado de todas las mesas (libres u ocupadas)."""
+    def get_or_create_panel_client(self):
+        """Obtiene el client_id para 'Panel', creándolo si no existe."""
         cursor = self.conn.cursor()
-        cursor.execute("SELECT id, state_table FROM mesa")
-        return cursor.fetchall()
+        cursor.execute("SELECT id FROM client WHERE name = 'Panel'")
+        result = cursor.fetchone()
+        if result:
+            return result[0]
+        else:
+            # Crear el cliente 'Panel'
+            cursor.execute("INSERT INTO client (name, documents, visits) VALUES (?, ?, ?)", ("Panel", "N/A", 0))
+            self.conn.commit()
+            return cursor.lastrowid
 
-    def get_tables_data(self):
-        """Obtener el estado de las mesas desde la base de datos."""
-        try:
-            cursor = self.conn.cursor()  # Usamos la conexión activa
-            cursor.execute("SELECT id, state_table FROM mesa")  # Consulta
-            tables = cursor.fetchall()  # Devuelve una lista de tuplas (id, estado)
-            return tables
-
-        except sqlite3.Error as e:
-            print(f"Error al obtener las mesas: {e}")
-            return None
-
-
-
-
-    # --- Gestión de menú ---
     def get_menu_data(self):
         """Obtiene los datos del menú organizados por categorías."""
         cursor = self.conn.cursor()
@@ -44,46 +37,166 @@ class PanelController:
         cursor.close()
         return menu_data
 
-    # --- Gestión de pedidos ---
-    def add_item_to_order(self, user_id, item_name, item_price):
-        """Agrega un elemento al pedido actual de un usuario."""
-        cursor = self.conn.cursor()
-        cursor.execute("""
-            INSERT INTO orders (client_id, items, status, total)
-            VALUES (?, ?, 'pendiente', ?)
-            ON CONFLICT(client_id) DO UPDATE SET
-            items = items || ', ' || ?,
-            total = total + ?
-            WHERE client_id = ? AND status = 'pendiente';
-        """, (user_id, item_name, item_price, item_name, item_price, user_id))
-        self.conn.commit()
-
-    def get_user_order(self, user_id):
-        """Obtiene el pedido actual del usuario."""
-        cursor = self.conn.cursor()
-        cursor.execute("""
-            SELECT id, items, total
-            FROM orders
-            WHERE client_id = ? AND status = 'pendiente'
-        """, (user_id,))
-        return cursor.fetchone()
-
-    def confirm_order(self, order_id):
-        """Confirma el pedido y lo envía a caja."""
+    def add_item_to_order(self, user_id, item_name, item_price, item_amount=1):
+        """Agrega un elemento al pedido actual del panel."""
         cursor = self.conn.cursor()
         try:
+            mesa_id = 0  # Indica que es desde el panel
+            client_id = self.get_or_create_panel_client()
+
+            # Verificar si ya existe un pedido pendiente para este cliente (panel)
             cursor.execute("""
-                UPDATE orders
-                SET status = 'en caja'
-                WHERE id = ? AND status = 'pendiente'
-            """, (order_id,))
+                SELECT id, items, item_prices, item_amounts, total FROM orders
+                WHERE client_id = ? AND status = 'pendiente' AND mesa_id = 0
+            """, (client_id,))
+            order = cursor.fetchone()
+
+            if order:
+                order_id, items, prices, amounts, total = order
+
+                # Verificar si el plato ya está en el pedido
+                item_list = items.strip(',').split(', ')
+                price_list = prices.strip(',').split(', ')
+                amount_list = amounts.strip(',').split(', ')
+
+                if item_name in item_list:
+                    index = item_list.index(item_name)
+                    current_amount = int(amount_list[index])
+                    new_amount = current_amount + item_amount
+                    amount_list[index] = str(new_amount)
+
+                    # Calcular el nuevo total
+                    new_total = total + (item_price * item_amount)
+
+                    # Reconstruir las cadenas sin comas al final
+                    new_items = ', '.join(item_list)
+                    new_prices = ', '.join(price_list)
+                    new_amounts = ', '.join(amount_list)
+
+                    cursor.execute("""
+                        UPDATE orders
+                        SET items = ?, item_prices = ?, item_amounts = ?, total = ?
+                        WHERE id = ?
+                    """, (new_items, new_prices, new_amounts, new_total, order_id))
+                else:
+                    # Agregar un nuevo plato al pedido
+                    new_items = items + f"{item_name}, "
+                    new_prices = prices + f"{item_price}, "
+                    new_amounts = amounts + f"{item_amount}, "
+                    new_total = total + (item_price * item_amount)
+
+                    cursor.execute("""
+                        UPDATE orders
+                        SET items = ?, item_prices = ?, item_amounts = ?, total = ?
+                        WHERE id = ?
+                    """, (new_items, new_prices, new_amounts, new_total, order_id))
+            else:
+                # Crear un nuevo pedido
+                new_items = f"{item_name}, "
+                new_prices = f"{item_price}, "
+                new_amounts = f"{item_amount}, "
+                new_total = item_price * item_amount
+
+                cursor.execute("""
+                    INSERT INTO orders (mesa_id, client_id, items, item_prices, item_amounts, status, total)
+                    VALUES (?, ?, ?, ?, ?, 'pendiente', ?)
+                """, (mesa_id, client_id, new_items, new_prices, new_amounts, new_total))
+
             self.conn.commit()
             return True
         except Exception as e:
-            print(f"Error al confirmar el pedido: {e}")
+            print(f"Error al agregar el ítem al pedido desde el panel: {e}")
+            self.conn.rollback()
             return False
 
+    def get_current_order(self, user_id):
+        """Obtiene el pedido actual del panel."""
+        cursor = self.conn.cursor()
+        client_id = self.get_or_create_panel_client()
+        cursor.execute("""
+            SELECT id, items, item_prices, item_amounts, total FROM orders
+            WHERE client_id = ? AND status = 'pendiente' AND mesa_id = 0
+        """, (client_id,))
+        return cursor.fetchone()
 
+    def remove_item_from_order(self, user_id, client_id, item_name):
+        """Elimina un ítem del pedido del panel."""
+        cursor = self.conn.cursor()
+        try:
+            # Obtener el pedido
+            cursor.execute("""
+                SELECT id, items, item_prices, item_amounts, total FROM orders
+                WHERE client_id = ? AND status = 'pendiente' AND mesa_id = 0
+            """, (client_id,))
+            order = cursor.fetchone()
+
+            if not order:
+                print("No hay pedido pendiente para eliminar.")
+                return False
+
+            order_id, items, prices, amounts, total = order
+
+            # Separar los elementos
+            item_list = items.strip(',').split(', ')
+            price_list = prices.strip(',').split(', ')
+            amount_list = amounts.strip(',').split(', ')
+
+            if item_name in item_list:
+                index = item_list.index(item_name)
+                current_amount = int(amount_list[index])
+                if current_amount > 1:
+                    amount_list[index] = str(current_amount - 1)
+                else:
+                    # Eliminar el plato del pedido
+                    del item_list[index]
+                    del price_list[index]
+                    del amount_list[index]
+
+                # Calcular el nuevo total
+                new_total = total - float(price_list[index])
+
+                # Reconstruir las cadenas
+                if item_list:
+                    new_items = ', '.join(item_list) + ', '
+                    new_prices = ', '.join(price_list) + ', '
+                    new_amounts = ', '.join(amount_list) + ', '
+                else:
+                    new_items = ''
+                    new_prices = ''
+                    new_amounts = ''
+
+                cursor.execute("""
+                    UPDATE orders
+                    SET items = ?, item_prices = ?, item_amounts = ?, total = ?
+                    WHERE id = ?
+                """, (new_items, new_prices, new_amounts, new_total, order_id))
+                self.conn.commit()
+                return True
+            else:
+                print("El plato no está en el pedido.")
+                return False
+        except Exception as e:
+            print(f"Error al eliminar el ítem del pedido desde el panel: {e}")
+            self.conn.rollback()
+            return False
+
+    def confirm_order(self, order_id):
+        """Confirma el pedido del panel y lo envía a caja."""
+        cursor = self.conn.cursor()
+        try:
+            # Actualizar el estado del pedido a 'en caja'
+            current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            cursor.execute("""
+                UPDATE orders
+                SET status = 'en caja', time_out = ?
+                WHERE id = ? AND mesa_id = 0
+            """, (current_time, order_id))
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"Error al confirmar el pedido del panel: {e}")
+            self.conn.rollback()
+            return False
 
     def close_connection(self):
         """Cierra la conexión a la base de datos."""

@@ -111,7 +111,7 @@ class CajaView:
     def confirm_payment(self, payment_window, order_id, method_pay, total):
         """Confirma el pago, inserta en la tabla caja y finaliza la orden"""
         pdf_path = self.controller.generate_bill(order_id, method_pay)
-        if pdf_path:
+        if pdf_patch:
             messagebox.showinfo("Éxito", f"Boleta generada correctamente:\n{pdf_path}")
             self.load_orders()
             payment_window.destroy()  # Cerrar ventana de pago

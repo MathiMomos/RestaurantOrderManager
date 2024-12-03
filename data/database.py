@@ -1,4 +1,4 @@
-# data/database.py .
+# data/database.py
 
 import sqlite3
 from sqlite3 import Error
@@ -103,26 +103,23 @@ def initialize_database():
                 print("Platos básicos agregados al menú.")
             conn.commit()
 
-            print("Base de datos inicializada correctamente.")
-
             # Insertar mesas en la tabla mesa si está vacía
             cursor.execute("SELECT COUNT(*) FROM mesa")
             if cursor.fetchone()[0] == 0:
-                mesas = [(i, 4 if i <= 10 else 6, 0) for i in
-                         range(1, 16)]  # Mesas de 1 a 10 con 4 personas, y de 11 a 15 con 6
+                mesas = [(i, 4 if i <= 10 else 6, 0) for i in range(1, 16)]  # Mesas de 1 a 10 con 4 personas, y de 11 a 15 con 6
                 cursor.executemany("INSERT INTO mesa (id, cantidad, state_table) VALUES (?, ?, ?)", mesas)
                 print("Mesas agregadas a la base de datos.")
 
-            # Insertar usuarios de mesas (mesa1 a mesa15) con role "mesa" y contraseñas "mesa1" hasta "mesa15"
-            for i in range(1, 16):
-                username = f"mesa{i}"
-                password = f"mesa{i}"
-                hashed_password = hash_password(password)
-                cursor.execute(
-                    "INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)",
-                    (username, hashed_password, "mesa")
-                )
-            print("Usuarios de mesas agregados a la base de datos.")
+            # Eliminadas las cuentas de tipo "mesa"
+            # for i in range(1, 16):
+            #     username = f"mesa{i}"
+            #     password = f"mesa{i}"
+            #     hashed_password = hash_password(password)
+            #     cursor.execute(
+            #         "INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)",
+            #         (username, hashed_password, "mesa")
+            #     )
+            # print("Usuarios de mesas agregados a la base de datos.")
 
             conn.commit()
             print("Base de datos inicializada correctamente.")
